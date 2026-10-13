@@ -1,0 +1,14 @@
+<header>
+  <strong>TeenSport</strong>
+  @if (user(); as current) {
+  <span>{{ current.firstNames }} {{ current.lastNames }} · {{ roleLabels[current.role] }}</span>
+  }
+  <button type="button" (click)="logout()">Cerrar sesión</button>
+</header>
+
+<main>
+  @if (user(); as current) {
+  <h1>Hola, {{ current.firstNames }}</h1>
+  }
+  <p>Tu cuenta ya está activa. Estamos construyendo esta sección.</p>
+</main>
