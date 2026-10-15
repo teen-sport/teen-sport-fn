@@ -55,6 +55,21 @@ describe('SessionService', () => {
     expect(TestBed.inject(SessionService).isAuthenticated()).toBe(false);
   });
 
+  it('updates the displayed name and keeps it after a reload', () => {
+    const session = TestBed.inject(SessionService);
+    session.start(loginResponse('GUARDIAN'));
+    session.updateUser({ firstNames: 'Marta Lucía', lastNames: 'Gómez Ríos' });
+    expect(session.user()?.firstNames).toBe('Marta Lucía');
+    TestBed.resetTestingModule();
+    expect(TestBed.inject(SessionService).user()?.lastNames).toBe('Gómez Ríos');
+  });
+
+  it('ignores a name update when nobody is logged in', () => {
+    const session = TestBed.inject(SessionService);
+    session.updateUser({ firstNames: 'X', lastNames: 'Y' });
+    expect(session.user()).toBeNull();
+  });
+
   it('clears everything on end', () => {
     const session = TestBed.inject(SessionService);
     session.start(loginResponse());

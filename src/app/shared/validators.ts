@@ -57,3 +57,9 @@ export const notBlank: ValidatorFn = (control) =>
   typeof control.value === 'string' && control.value !== '' && control.value.trim() === ''
     ? { required: true }
     : null;
+
+/** El valor debe ser un número entero (un campo vacío se acepta; para exigirlo usa `required`). */
+export const integer: ValidatorFn = (control) => {
+  const value = control.value;
+  return value === null || value === '' || Number.isInteger(value) ? null : { integer: true };
+};

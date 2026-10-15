@@ -1,19 +1,20 @@
-import { Component, inject } from '@angular/core';
-import { AuthService } from '../../../Core/Auth/auth.service';
+import { Component, computed, inject } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { SessionService } from '../../../Core/Auth/session.service';
-import { ROLE_LABELS } from '../../../Core/Models/role';
+import { SHORTCUTS } from '../../../layout/nav-items';
 
+/** Pantalla de inicio de cada rol: accesos rápidos a sus tareas. */
 @Component({
   selector: 'app-home-shell',
+  imports: [RouterLink],
   templateUrl: './home-shell.html',
   styleUrl: './home-shell.css',
 })
 export class HomeShell {
-  private readonly auth = inject(AuthService);
-  protected readonly user = inject(SessionService).user;
-  protected readonly roleLabels = ROLE_LABELS;
+  private readonly session = inject(SessionService);
 
-  protected logout(): void {
-    this.auth.logout();
-  }
+  protected readonly shortcuts = computed(() => {
+    const role = this.session.role();
+    return role ? SHORTCUTS[role] : [];
+  });
 }

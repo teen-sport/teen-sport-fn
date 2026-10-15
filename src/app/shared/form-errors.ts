@@ -18,6 +18,12 @@ export function firstError(control: AbstractControl | null): string | null {
   if (errors['maxlength']) {
     return `Máximo ${errors['maxlength'].requiredLength} caracteres.`;
   }
+  if (errors['min']) {
+    return `El valor mínimo es ${errors['min'].min}.`;
+  }
+  if (errors['integer']) {
+    return 'Escribe un número entero.';
+  }
   if (errors['maxbytes']) {
     return 'La contraseña es demasiado larga.';
   }

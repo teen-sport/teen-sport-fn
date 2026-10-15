@@ -1,14 +1,23 @@
-<header>
-  <strong>TeenSport</strong>
-  @if (user(); as current) {
-  <span>{{ current.firstNames }} {{ current.lastNames }} · {{ roleLabels[current.role] }}</span>
-  }
-  <button type="button" (click)="logout()">Cerrar sesión</button>
-</header>
+<div class="home">
+  <h1>Inicio</h1>
 
-<main>
-  @if (user(); as current) {
-  <h1>Hola, {{ current.firstNames }}</h1>
+  @if (shortcuts().length) {
+  <ul class="shortcuts">
+    @for (shortcut of shortcuts(); track shortcut.route) {
+    <li>
+      <a class="card shortcut" [routerLink]="shortcut.route">
+        <strong>{{ shortcut.title }}</strong>
+        <span>{{ shortcut.description }}</span>
+        <span class="shortcut__go" aria-hidden="true">Ir →</span>
+      </a>
+    </li>
+    }
+  </ul>
+  } @else {
+  <p class="empty">Aquí aparecerán tus opciones a medida que estén disponibles.</p>
   }
-  <p>Tu cuenta ya está activa. Estamos construyendo esta sección.</p>
-</main>
+
+  <p class="profile-hint">
+    Tus datos y tu contraseña están en <a href="/profile" routerLink="/profile">Mi perfil</a>.
+  </p>
+</div>

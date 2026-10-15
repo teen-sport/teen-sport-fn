@@ -118,6 +118,17 @@ a {
   box-shadow: 0 8px 24px rgb(15 42 28 / 8%);
 }
 
+.auth-card header {
+  text-align: center;
+}
+
+.auth-logo {
+  display: block;
+  width: 6rem;
+  height: 6rem;
+  margin: 0 auto var(--space-2);
+}
+
 .brand {
   margin: 0 0 var(--space-1);
   font-family: var(--font-display);
@@ -171,4 +182,135 @@ input[aria-invalid='true'] {
   margin: var(--space-4) 0 0;
   text-align: center;
   color: var(--muted);
+}
+
+/* ===== Pantallas internas (con sesión) ===== */
+
+h1 {
+  font-size: 2rem;
+}
+
+.lead {
+  margin: 0 0 var(--space-4);
+  color: var(--muted);
+}
+
+.card {
+  padding: var(--space-4);
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: calc(var(--radius) * 2);
+  box-shadow: 0 4px 16px rgb(15 42 28 / 6%);
+}
+
+.form-card {
+  max-width: 40rem;
+}
+
+/* Pantallas de contenido angosto (perfil): bloque centrado en la página */
+.page-narrow {
+  display: block;
+  max-width: 44rem;
+  margin-inline: auto;
+}
+
+.page-narrow h1 {
+  margin-bottom: var(--space-4);
+  text-align: center;
+}
+
+.page-narrow .actions {
+  justify-content: center;
+}
+
+.hint {
+  margin: 0 0 var(--space-3);
+  color: var(--muted);
+}
+
+/* Enlaces con aspecto de botón */
+.btn {
+  display: inline-block;
+  padding: 0.7rem 1.25rem;
+  font-weight: 700;
+  line-height: 1.5;
+  color: var(--paper);
+  text-align: center;
+  text-decoration: none;
+  background: var(--pitch);
+  border: 2px solid var(--pitch);
+  border-radius: var(--radius);
+}
+
+.btn:hover {
+  background: var(--pitch-dark);
+  border-color: var(--pitch-dark);
+}
+
+.btn-secondary {
+  color: var(--pitch);
+  background: transparent;
+}
+
+.btn-secondary:hover:not(:disabled) {
+  color: var(--paper);
+  background: var(--pitch);
+  border-color: var(--pitch);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+}
+
+/* Lista de datos "etiqueta: valor" */
+.details {
+  display: grid;
+  gap: var(--space-3);
+  margin: 0;
+}
+
+.details dt {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.details dd {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+@media (min-width: 42rem) {
+  .details {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* Formularios de dos columnas */
+.row {
+  display: grid;
+  column-gap: var(--space-3);
+}
+
+@media (min-width: 42rem) {
+  .row {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* Requisitos de contraseña */
+.rules {
+  margin: var(--space-2) 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.rules li.met {
+  font-weight: 600;
+  color: var(--pitch);
 }

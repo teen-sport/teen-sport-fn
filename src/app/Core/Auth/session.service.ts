@@ -42,6 +42,17 @@ export class SessionService {
     this.store.save(session);
   }
 
+  /** Actualiza el nombre que se muestra, por ejemplo después de editar el perfil. */
+  updateUser(changes: Pick<LoggedUser, 'firstNames' | 'lastNames'>): void {
+    const session = this.current();
+    if (!session) {
+      return;
+    }
+    const updated: StoredSession = { ...session, user: { ...session.user, ...changes } };
+    this.current.set(updated);
+    this.store.save(updated);
+  }
+
   end(): void {
     this.current.set(null);
     this.store.clear();
