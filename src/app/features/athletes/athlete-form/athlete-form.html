@@ -1,0 +1,135 @@
+<h1>{{ title }}</h1>
+
+@if (loading()) {
+  <p role="status">Cargando los datos del deportista…</p>
+} @else if (loadError(); as message) {
+  <p class="alert" role="alert">{{ message }}</p>
+  <div class="actions">
+    <button type="button" (click)="load()">Reintentar</button>
+    <a class="btn btn-secondary" routerLink="/guardian/athletes">Volver a mis deportistas</a>
+  </div>
+} @else {
+  <section class="card form-card">
+    <p class="hint">La academia recibe deportistas de 12 a 17 años.</p>
+
+    <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+      @if (formError(); as message) {
+        <p class="alert" role="alert">{{ message }}</p>
+      }
+
+      <div class="row">
+        @let firstNamesError = firstError(form.controls.firstNames);
+        <div class="field">
+          <label for="firstNames">Nombres</label>
+          <input
+            id="firstNames"
+            type="text"
+            formControlName="firstNames"
+            autocomplete="off"
+            [attr.aria-invalid]="firstNamesError ? 'true' : null"
+            [attr.aria-describedby]="firstNamesError ? 'firstNames-error' : null"
+          />
+          @if (firstNamesError) {
+            <p class="error" id="firstNames-error">{{ firstNamesError }}</p>
+          }
+        </div>
+
+        @let lastNamesError = firstError(form.controls.lastNames);
+        <div class="field">
+          <label for="lastNames">Apellidos</label>
+          <input
+            id="lastNames"
+            type="text"
+            formControlName="lastNames"
+            autocomplete="off"
+            [attr.aria-invalid]="lastNamesError ? 'true' : null"
+            [attr.aria-describedby]="lastNamesError ? 'lastNames-error' : null"
+          />
+          @if (lastNamesError) {
+            <p class="error" id="lastNames-error">{{ lastNamesError }}</p>
+          }
+        </div>
+      </div>
+
+      <div class="row">
+        @let idTypeError = firstError(form.controls.idType);
+        <div class="field">
+          <label for="idType">Tipo de documento</label>
+          <select
+            id="idType"
+            formControlName="idType"
+            [attr.aria-invalid]="idTypeError ? 'true' : null"
+            [attr.aria-describedby]="idTypeError ? 'idType-error' : null"
+          >
+            @for (type of idTypes; track type.value) {
+              <option [value]="type.value">{{ type.label }}</option>
+            }
+          </select>
+          @if (idTypeError) {
+            <p class="error" id="idType-error">{{ idTypeError }}</p>
+          }
+        </div>
+
+        @let idNumberError = firstError(form.controls.idNumber);
+        <div class="field">
+          <label for="idNumber">Número de documento</label>
+          <input
+            id="idNumber"
+            type="text"
+            inputmode="numeric"
+            formControlName="idNumber"
+            autocomplete="off"
+            [attr.aria-invalid]="idNumberError ? 'true' : null"
+            [attr.aria-describedby]="idNumberError ? 'idNumber-error' : null"
+          />
+          @if (idNumberError) {
+            <p class="error" id="idNumber-error">{{ idNumberError }}</p>
+          }
+        </div>
+      </div>
+
+      <div class="row">
+        @let birthDateError = firstError(form.controls.birthDate);
+        <div class="field">
+          <label for="birthDate">Fecha de nacimiento</label>
+          <input
+            id="birthDate"
+            type="date"
+            formControlName="birthDate"
+            [max]="today"
+            [attr.aria-invalid]="birthDateError ? 'true' : null"
+            [attr.aria-describedby]="birthDateError ? 'birthDate-error' : null"
+          />
+          @if (birthDateError) {
+            <p class="error" id="birthDate-error">{{ birthDateError }}</p>
+          }
+        </div>
+
+        @let genderError = firstError(form.controls.gender);
+        <div class="field">
+          <label for="gender">Género (opcional)</label>
+          <select
+            id="gender"
+            formControlName="gender"
+            [attr.aria-invalid]="genderError ? 'true' : null"
+            [attr.aria-describedby]="genderError ? 'gender-error' : null"
+          >
+            @for (gender of genders; track gender.value) {
+              <option [value]="gender.value">{{ gender.label }}</option>
+            }
+          </select>
+          @if (genderError) {
+            <p class="error" id="gender-error">{{ genderError }}</p>
+          }
+        </div>
+      </div>
+
+      <div class="actions">
+        <button type="submit" [disabled]="submitting()">
+          {{ submitting() ? 'Guardando…' : editing ? 'Guardar cambios' : 'Registrar deportista' }}
+        </button>
+        <a class="btn btn-secondary" routerLink="/guardian/athletes">Cancelar</a>
+      </div>
+    </form>
+  </section>
+}

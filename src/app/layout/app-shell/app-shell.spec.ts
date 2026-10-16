@@ -46,7 +46,7 @@ describe('AppShell', () => {
     const router = TestBed.inject(Router);
     vi.spyOn(router, 'navigate').mockResolvedValue(true);
 
-    el().querySelector<HTMLButtonElement>('.app-user button')!.click();
+    el().querySelector<HTMLButtonElement>('.app-logout')!.click();
 
     expect(TestBed.inject(SessionService).isAuthenticated()).toBe(false);
     expect(router.navigate).toHaveBeenCalledWith(['/login']);
@@ -56,5 +56,57 @@ describe('AppShell', () => {
     await setup('GUARDIAN');
     expect(el().querySelector('a.skip-link')?.getAttribute('href')).toBe('#content');
     expect(el().querySelector('main#content')).toBeTruthy();
+  });
+
+  describe('menu on narrow screens', () => {
+    const toggle = (): HTMLButtonElement =>
+      el().querySelector<HTMLButtonElement>('.app-menu-toggle')!;
+    const header = (): HTMLElement => el().querySelector<HTMLElement>('.app-header__inner')!;
+
+    it('starts closed and the button points to the menu it controls', async () => {
+      await setup('GUARDIAN');
+      expect(toggle().getAttribute('aria-controls')).toBe('app-nav app-logout');
+      expect(toggle().getAttribute('aria-expanded')).toBe('false');
+      expect(toggle().getAttribute('aria-label')).toBe('Abrir menú');
+      expect(header().classList.contains('app-header__inner--open')).toBe(false);
+    });
+
+    it('opens and closes the menu with the button', async () => {
+      await setup('GUARDIAN');
+
+      toggle().click();
+      await fixture.whenStable();
+      expect(toggle().getAttribute('aria-expanded')).toBe('true');
+      expect(toggle().getAttribute('aria-label')).toBe('Cerrar menú');
+      expect(header().classList.contains('app-header__inner--open')).toBe(true);
+
+      toggle().click();
+      await fixture.whenStable();
+      expect(toggle().getAttribute('aria-expanded')).toBe('false');
+      expect(header().classList.contains('app-header__inner--open')).toBe(false);
+    });
+
+    it('closes the menu after choosing an option', async () => {
+      await setup('GUARDIAN');
+      TestBed.inject(Router).resetConfig([{ path: 'profile', children: [] }]);
+      toggle().click();
+      await fixture.whenStable();
+
+      el().querySelector<HTMLAnchorElement>('.app-nav a[href="/profile"]')!.click();
+      await fixture.whenStable();
+
+      expect(header().classList.contains('app-header__inner--open')).toBe(false);
+    });
+
+    it('closes the menu with Escape', async () => {
+      await setup('GUARDIAN');
+      toggle().click();
+      await fixture.whenStable();
+
+      document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+      await fixture.whenStable();
+
+      expect(toggle().getAttribute('aria-expanded')).toBe('false');
+    });
   });
 });

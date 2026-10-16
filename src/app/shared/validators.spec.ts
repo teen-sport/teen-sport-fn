@@ -1,5 +1,12 @@
 import { FormControl, FormGroup } from '@angular/forms';
-import { checkPassword, maxUtf8Bytes, notBlank, sameValue, strongPassword } from './validators';
+import {
+  checkPassword,
+  maxUtf8Bytes,
+  notBlank,
+  notFutureDate,
+  sameValue,
+  strongPassword,
+} from './validators';
 
 describe('password policy', () => {
   it('accepts a password with every rule', () => {
@@ -46,5 +53,31 @@ describe('notBlank', () => {
   it('rejects values made only of spaces', () => {
     expect(notBlank(new FormControl('   '))).toEqual({ required: true });
     expect(notBlank(new FormControl(' Ana '))).toBeNull();
+  });
+});
+
+describe('notFutureDate', () => {
+  afterEach(() => vi.useRealTimers());
+
+  it('accepts an empty field, today and past dates', () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-10-16T15:00:00Z'));
+    expect(notFutureDate(new FormControl(''))).toBeNull();
+    expect(notFutureDate(new FormControl('2026-10-16'))).toBeNull();
+    expect(notFutureDate(new FormControl('2010-05-14'))).toBeNull();
+  });
+
+  it('rejects a date after today', () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-10-16T15:00:00Z'));
+    expect(notFutureDate(new FormControl('2026-10-17'))).toEqual({ futuredate: true });
+  });
+
+  it('uses the day in Colombia, not the UTC day', () => {
+    vi.useFakeTimers();
+    // En UTC ya es 17 de octubre, pero en Colombia todavía es 16.
+    vi.setSystemTime(new Date('2026-10-17T02:30:00Z'));
+    expect(notFutureDate(new FormControl('2026-10-16'))).toBeNull();
+    expect(notFutureDate(new FormControl('2026-10-17'))).toEqual({ futuredate: true });
   });
 });

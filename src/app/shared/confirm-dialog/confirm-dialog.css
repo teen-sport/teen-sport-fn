@@ -1,0 +1,27 @@
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: grid;
+  place-items: center;
+  padding: var(--space-3);
+  background: rgb(15 42 28 / 55%);
+}
+
+.dialog {
+  width: 100%;
+  max-width: 28rem;
+  padding: var(--space-4);
+  background: var(--paper);
+  border-radius: calc(var(--radius) * 2);
+  box-shadow: 0 12px 40px rgb(15 42 28 / 35%);
+}
+
+.dialog h2 {
+  font-size: 1.5rem;
+}
+
+.dialog p {
+  margin: 0 0 var(--space-3);
+  color: var(--muted);
+}

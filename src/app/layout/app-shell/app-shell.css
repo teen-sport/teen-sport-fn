@@ -54,6 +54,10 @@
   box-shadow: 0 0 0 2px rgb(255 255 255 / 85%);
 }
 
+.app-menu-toggle {
+  display: none;
+}
+
 .app-nav {
   display: flex;
   flex: 1;
@@ -77,12 +81,6 @@
 .app-user__name:hover,
 .app-user__name.active {
   border-bottom-color: var(--signal);
-}
-
-.app-user {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
 }
 
 .app-user__name {
@@ -118,9 +116,117 @@
   outline-color: var(--signal);
 }
 
-@media (max-width: 40rem) {
-  .app-user {
-    width: 100%;
-    justify-content: space-between;
+/* Pantallas angostas: logo centrado; debajo, el usuario con las tres rayas al lado.
+   El menú y «Cerrar sesión» quedan recogidos hasta pulsar las tres rayas. */
+@media (max-width: 80rem) {
+  .app-header__inner {
+    gap: var(--space-2) var(--space-3);
+  }
+
+  .app-brand {
+    order: 1;
+    flex: 0 0 100%;
+    justify-content: center;
+  }
+
+  .app-user__name {
+    order: 2;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .app-menu-toggle {
+    order: 3;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 3rem;
+    height: 3rem;
+    padding: 0;
+    background: transparent;
+    border-color: var(--paper);
+  }
+
+  .app-menu-toggle:hover:not(:disabled) {
+    background: rgb(255 255 255 / 15%);
+    border-color: var(--paper);
+  }
+
+  .app-menu-toggle__bars,
+  .app-menu-toggle__bars::before,
+  .app-menu-toggle__bars::after {
+    display: block;
+    width: 1.5rem;
+    height: 3px;
+    background: var(--paper);
+    border-radius: 2px;
+    transition:
+      transform 0.2s ease,
+      background-color 0.2s ease;
+  }
+
+  .app-menu-toggle__bars {
+    position: relative;
+  }
+
+  .app-menu-toggle__bars::before,
+  .app-menu-toggle__bars::after {
+    content: '';
+    position: absolute;
+    left: 0;
+  }
+
+  .app-menu-toggle__bars::before {
+    top: -0.45rem;
+  }
+
+  .app-menu-toggle__bars::after {
+    top: 0.45rem;
+  }
+
+  .app-menu-toggle[aria-expanded='true'] .app-menu-toggle__bars {
+    background: transparent;
+  }
+
+  .app-menu-toggle[aria-expanded='true'] .app-menu-toggle__bars::before {
+    transform: translateY(0.45rem) rotate(45deg);
+  }
+
+  .app-menu-toggle[aria-expanded='true'] .app-menu-toggle__bars::after {
+    transform: translateY(-0.45rem) rotate(-45deg);
+  }
+
+  .app-nav,
+  .app-logout {
+    display: none;
+  }
+
+  .app-header__inner--open .app-nav {
+    order: 4;
+    flex: 0 0 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    padding-top: var(--space-2);
+    border-top: 1px solid rgb(255 255 255 / 25%);
+  }
+
+  .app-nav a {
+    padding: var(--space-2) 0 var(--space-2) var(--space-2);
+    border-bottom: 0;
+    border-left: 4px solid transparent;
+  }
+
+  .app-nav a:hover,
+  .app-nav a.active {
+    border-bottom: 0;
+    border-left-color: var(--signal);
+  }
+
+  .app-header__inner--open .app-logout {
+    order: 5;
+    flex: 0 0 100%;
+    display: block;
+    margin-bottom: var(--space-2);
   }
 }

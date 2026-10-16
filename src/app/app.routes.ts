@@ -36,10 +36,11 @@ export const routes: Routes = [
         loadComponent: homePage,
       },
       {
+        // Un solo guard protege todas las pantallas del acudiente.
         path: 'guardian',
-        title: 'Acudiente | TeenSport',
         canActivate: [roleGuard('GUARDIAN')],
-        loadComponent: homePage,
+        loadChildren: () =>
+          import('./features/guardian/guardian.routes').then((m) => m.GUARDIAN_ROUTES),
       },
       {
         path: 'profile',
