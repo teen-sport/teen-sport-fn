@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  apiBaseUrl: '/api/v1', // provisional hasta definir el despliegue
+  apiBaseUrl: 'https://teen-sport-bk-production.up.railway.app/api/v1',
 };
