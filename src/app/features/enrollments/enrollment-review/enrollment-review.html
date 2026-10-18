@@ -1,0 +1,79 @@
+<section class="card" aria-labelledby="review-title">
+  <h2 id="review-title">Confirmar la solicitud</h2>
+
+  @if (actionError(); as message) {
+    <p class="alert" role="alert">{{ message }}</p>
+  }
+
+  <div class="field">
+    <label for="groupId">Grupo</label>
+    <select id="groupId" [formControl]="groupId" aria-describedby="groupId-hint">
+      <option value="">Mantener {{ enrollment().group.name }}</option>
+      @for (group of otherGroups(); track group.groupId) {
+        <option [value]="group.groupId" [disabled]="group.availableSpots <= 0">
+          {{ groupOptionLabel(group) }}
+        </option>
+      }
+    </select>
+    <p class="hint" id="groupId-hint">
+      Opcional. Solo se ofrecen otros grupos activos de {{ enrollment().discipline.name }}.
+    </p>
+  </div>
+
+  <div class="field">
+    <label class="check">
+      <input type="checkbox" [formControl]="withPayment" />
+      <span>Registrar el primer pago al confirmar</span>
+    </label>
+  </div>
+
+  @if (withPayment.value) {
+    <app-payment-form
+      submitLabel="Confirmar y registrar pago"
+      [monthlyFee]="monthlyFee()"
+      [busy]="busy()"
+      (submitted)="confirm($event)"
+    />
+  } @else {
+    <p class="hint">
+      Sin pago, la inscripción queda activa con «Pago pendiente» hasta que registres el primero.
+    </p>
+    <button type="button" [disabled]="busy()" (click)="confirm()">
+      {{ busy() ? 'Confirmando…' : 'Confirmar inscripción' }}
+    </button>
+  }
+</section>
+
+<section class="card" aria-labelledby="reject-title">
+  <h2 id="reject-title">Rechazar la solicitud</h2>
+  <p class="hint">El acudiente verá el motivo. El rechazo es definitivo y libera el cupo.</p>
+  @let reasonError = firstError(reason);
+  <div class="field">
+    <label for="reason">Motivo del rechazo</label>
+    <textarea
+      id="reason"
+      rows="2"
+      [formControl]="reason"
+      [attr.aria-invalid]="reasonError ? 'true' : null"
+      [attr.aria-describedby]="reasonError ? 'reason-error' : null"
+    ></textarea>
+    @if (reasonError) {
+      <p class="error" id="reason-error">{{ reasonError }}</p>
+    }
+  </div>
+  <button type="button" class="btn-danger" [disabled]="busy()" (click)="askToReject()">
+    Rechazar solicitud
+  </button>
+</section>
+
+@if (confirmingReject()) {
+  <app-confirm-dialog
+    title="¿Rechazar la solicitud?"
+    message="La solicitud pasa a «Rechazada» y no se puede reabrir: el acudiente tendría que pedir una inscripción nueva."
+    confirmLabel="Sí, rechazar"
+    [danger]="true"
+    [busy]="busy()"
+    (confirmed)="reject()"
+    (dismissed)="closeReject()"
+  />
+}

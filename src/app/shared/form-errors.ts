@@ -21,6 +21,9 @@ export function firstError(control: AbstractControl | null): string | null {
   if (errors['min']) {
     return `El valor mínimo es ${errors['min'].min}.`;
   }
+  if (errors['max']) {
+    return `El valor máximo es ${errors['max'].max}.`;
+  }
   if (errors['integer']) {
     return 'Escribe un número entero.';
   }

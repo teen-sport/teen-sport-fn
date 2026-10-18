@@ -24,10 +24,10 @@ export const routes: Routes = [
     loadComponent: () => import('./layout/app-shell/app-shell').then((m) => m.AppShell),
     children: [
       {
+        // Un solo guard protege todas las pantallas del administrador.
         path: 'admin',
-        title: 'Administración | TeenSport',
         canActivate: [roleGuard('ADMIN')],
-        loadComponent: homePage,
+        loadChildren: () => import('./features/admin/admin.routes').then((m) => m.ADMIN_ROUTES),
       },
       {
         path: 'coach',

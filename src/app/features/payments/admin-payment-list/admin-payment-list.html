@@ -1,0 +1,88 @@
+<h1>Pagos</h1>
+
+<p class="lead">
+  Pagos que la academia ha registrado. Para registrar uno nuevo, abre la inscripción desde
+  <a routerLink="/admin/enrollments">Inscripciones</a>.
+</p>
+
+<form class="toolbar" [formGroup]="filters" (submit)="$event.preventDefault()">
+  <div class="field">
+    <label for="from">Pagados desde</label>
+    <input id="from" type="date" formControlName="from" />
+  </div>
+  <div class="field">
+    <label for="to">Pagados hasta</label>
+    <input id="to" type="date" formControlName="to" />
+  </div>
+</form>
+
+@if (rangeError(); as message) {
+  <p class="alert" role="alert">{{ message }}</p>
+} @else if (loading() && !result()) {
+  <p role="status">Cargando pagos…</p>
+} @else if (loadError(); as message) {
+  <p class="alert" role="alert">{{ message }}</p>
+  <button type="button" (click)="load()">Reintentar</button>
+} @else if (result(); as current) {
+  @if (current.content.length === 0) {
+    <p class="empty-state">
+      @if (filtering) {
+        No hay pagos en esas fechas.
+        <button type="button" class="btn-secondary btn-small" (click)="clearFilters()">
+          Quitar filtros
+        </button>
+      } @else {
+        Todavía no hay pagos registrados.
+      }
+    </p>
+  } @else {
+    <div class="card table-card" [attr.aria-busy]="loading()">
+      <div class="table-wrap">
+        <table class="table">
+          <caption class="sr-only">
+            Pagos registrados en la academia
+          </caption>
+          <thead>
+            <tr>
+              <th scope="col">Fecha de pago</th>
+              <th scope="col">Deportista</th>
+              <th scope="col">Disciplina</th>
+              <th scope="col">Mes que cubre</th>
+              <th scope="col">Monto</th>
+              <th scope="col">Comprobante</th>
+              <th scope="col">Registró</th>
+              <th scope="col"><span class="sr-only">Acciones</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (payment of current.content; track payment.id) {
+              <tr>
+                <th scope="row">{{ formatDate(payment.paymentDate) }}</th>
+                <td>{{ payment.athlete.firstNames }} {{ payment.athlete.lastNames }}</td>
+                <td>{{ payment.discipline.name }}</td>
+                <td>{{ formatPeriod(payment.period) }}</td>
+                <td class="nowrap">{{ formatMoney(payment.amountPaid) }}</td>
+                <td>{{ payment.receiptReference || '—' }}</td>
+                <td>{{ payment.registeredBy?.fullName || '—' }}</td>
+                <td>
+                  <a
+                    class="btn btn-secondary btn-small"
+                    [routerLink]="['/admin/enrollments', payment.enrollmentId]"
+                    >Ver inscripción</a
+                  >
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <app-pagination
+      [page]="current.page"
+      [totalPages]="current.totalPages"
+      [totalElements]="current.totalElements"
+      (pageChange)="goTo($event)"
+    />
+  }
+}

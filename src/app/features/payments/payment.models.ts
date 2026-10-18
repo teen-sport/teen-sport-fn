@@ -18,10 +18,24 @@ export interface Payment {
   createdAt: string;
 }
 
-/** Filtros del historial de pagos. La primera página es la 0. */
+/** Filtros del historial de pagos. La primera página es la 0. Las fechas van como «YYYY-MM-DD». */
 export interface PaymentQuery {
   page?: number;
   size?: number;
   enrollmentId?: number | null;
   athleteId?: number | null;
+  from?: string | null;
+  to?: string | null;
+}
+
+/**
+ * Cuerpo de POST /enrollments/{id}/payments (E17) y del campo `payment` al confirmar una inscripción.
+ * El monto no puede ser menor que la mensualidad y la fecha no puede ser futura.
+ */
+export interface RegisterPaymentRequest {
+  amountPaid: number;
+  /** Fecha del pago «YYYY-MM-DD». */
+  paymentDate: string;
+  receiptReference?: string;
+  notes?: string;
 }

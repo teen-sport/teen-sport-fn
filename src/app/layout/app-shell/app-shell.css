@@ -28,9 +28,12 @@
   flex-wrap: wrap;
   align-items: center;
   gap: var(--space-2) var(--space-4);
-  max-width: 72rem;
+  /* Más ancho que el contenido (72 rem): con el menú en una fila y un nombre largo no cabría todo. */
+  max-width: 80rem;
   margin: 0 auto;
   padding: var(--space-2) var(--space-3);
+  /* Punto de apoyo del cuadro desplegable del menú recogido. */
+  position: relative;
 }
 
 .app-brand {
@@ -58,6 +61,16 @@
   display: none;
 }
 
+/* Menú en una fila: el contenedor no cuenta para el diseño y sus hijos (enlaces y «Cerrar sesión»)
+   se acomodan directamente en el encabezado, con «Cerrar sesión» al final. */
+.app-menu {
+  display: contents;
+}
+
+.app-logout {
+  order: 1;
+}
+
 .app-nav {
   display: flex;
   flex: 1;
@@ -74,6 +87,8 @@
 
 .app-nav a {
   padding: var(--space-1) 0;
+  /* «Grupos disponibles» no se parte en dos líneas. */
+  white-space: nowrap;
 }
 
 .app-nav a:hover,
@@ -92,6 +107,19 @@
 .app-user__name small {
   font-weight: 400;
   color: var(--mist);
+}
+
+/* Con el menú en una fila, un nombre muy largo se corta con «…» (el nombre completo queda en el
+   `title`) en vez de empujar «Mi perfil» a una segunda fila. En el menú recogido hay espacio y el
+   nombre puede pasar a otra línea. */
+.app-header__inner:not(.app-header__inner--compact) .app-user__name {
+  max-width: 16rem;
+}
+
+.app-header__inner:not(.app-header__inner--compact) .app-user__name span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .btn-secondary {
@@ -116,117 +144,144 @@
   outline-color: var(--signal);
 }
 
-/* Pantallas angostas: logo centrado; debajo, el usuario con las tres rayas al lado.
-   El menú y «Cerrar sesión» quedan recogidos hasta pulsar las tres rayas. */
-@media (max-width: 80rem) {
-  .app-header__inner {
-    gap: var(--space-2) var(--space-3);
-  }
+/* Menú recogido (`--compact`: pantalla angosta o rol con muchas opciones): el logo queda centrado y,
+   debajo, el usuario con las tres rayas al lado. El menú y «Cerrar sesión» quedan ocultos hasta
+   pulsar las tres rayas y entonces salen en un cuadro pequeño bajo el botón. */
+.app-header__inner--compact .app-brand {
+  order: 1;
+  flex: 0 0 100%;
+  justify-content: center;
+}
 
-  .app-brand {
-    order: 1;
-    flex: 0 0 100%;
-    justify-content: center;
-  }
+.app-header__inner--compact .app-user__name {
+  order: 2;
+  flex: 1;
+  min-width: 0;
+}
 
-  .app-user__name {
-    order: 2;
-    flex: 1;
-    min-width: 0;
-  }
+.app-header__inner--compact .app-menu-toggle {
+  order: 3;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  height: 3rem;
+  padding: 0;
+  background: transparent;
+  border-color: var(--paper);
+}
 
-  .app-menu-toggle {
-    order: 3;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 3rem;
-    height: 3rem;
-    padding: 0;
-    background: transparent;
-    border-color: var(--paper);
-  }
+.app-header__inner--compact .app-menu-toggle:hover:not(:disabled) {
+  background: rgb(255 255 255 / 15%);
+  border-color: var(--paper);
+}
 
-  .app-menu-toggle:hover:not(:disabled) {
-    background: rgb(255 255 255 / 15%);
-    border-color: var(--paper);
-  }
+.app-menu-toggle__bars,
+.app-menu-toggle__bars::before,
+.app-menu-toggle__bars::after {
+  display: block;
+  width: 1.5rem;
+  height: 3px;
+  background: var(--paper);
+  border-radius: 2px;
+  transition:
+    transform 0.2s ease,
+    background-color 0.2s ease;
+}
 
-  .app-menu-toggle__bars,
-  .app-menu-toggle__bars::before,
-  .app-menu-toggle__bars::after {
-    display: block;
-    width: 1.5rem;
-    height: 3px;
-    background: var(--paper);
-    border-radius: 2px;
-    transition:
-      transform 0.2s ease,
-      background-color 0.2s ease;
-  }
+.app-menu-toggle__bars {
+  position: relative;
+}
 
-  .app-menu-toggle__bars {
-    position: relative;
-  }
+.app-menu-toggle__bars::before,
+.app-menu-toggle__bars::after {
+  content: '';
+  position: absolute;
+  left: 0;
+}
 
-  .app-menu-toggle__bars::before,
-  .app-menu-toggle__bars::after {
-    content: '';
-    position: absolute;
-    left: 0;
-  }
+.app-menu-toggle__bars::before {
+  top: -0.45rem;
+}
 
-  .app-menu-toggle__bars::before {
-    top: -0.45rem;
-  }
+.app-menu-toggle__bars::after {
+  top: 0.45rem;
+}
 
-  .app-menu-toggle__bars::after {
-    top: 0.45rem;
-  }
+.app-menu-toggle[aria-expanded='true'] .app-menu-toggle__bars {
+  background: transparent;
+}
 
-  .app-menu-toggle[aria-expanded='true'] .app-menu-toggle__bars {
-    background: transparent;
-  }
+.app-menu-toggle[aria-expanded='true'] .app-menu-toggle__bars::before {
+  transform: translateY(0.45rem) rotate(45deg);
+}
 
-  .app-menu-toggle[aria-expanded='true'] .app-menu-toggle__bars::before {
-    transform: translateY(0.45rem) rotate(45deg);
-  }
+.app-menu-toggle[aria-expanded='true'] .app-menu-toggle__bars::after {
+  transform: translateY(-0.45rem) rotate(-45deg);
+}
 
-  .app-menu-toggle[aria-expanded='true'] .app-menu-toggle__bars::after {
-    transform: translateY(-0.45rem) rotate(-45deg);
-  }
+.app-header__inner--compact .app-menu {
+  display: none;
+}
 
-  .app-nav,
-  .app-logout {
-    display: none;
-  }
+/* Cuadro desplegable: flota sobre el contenido, alineado a la derecha, debajo del encabezado. */
+.app-header__inner--compact.app-header__inner--open .app-menu {
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  top: 100%;
+  right: var(--space-3);
+  z-index: 20;
+  width: 16rem;
+  max-width: calc(100vw - 2 * var(--space-3));
+  margin-top: var(--space-1);
+  padding: var(--space-2) 0;
+  color: var(--ink);
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: 0 8px 24px rgb(15 42 28 / 25%);
+}
 
-  .app-header__inner--open .app-nav {
-    order: 4;
-    flex: 0 0 100%;
-    display: flex;
-    flex-direction: column;
-    gap: 0;
-    padding-top: var(--space-2);
-    border-top: 1px solid rgb(255 255 255 / 25%);
-  }
+.app-header__inner--compact .app-nav {
+  flex: none;
+  flex-direction: column;
+  gap: 0;
+}
 
-  .app-nav a {
-    padding: var(--space-2) 0 var(--space-2) var(--space-2);
-    border-bottom: 0;
-    border-left: 4px solid transparent;
-  }
+.app-header__inner--compact .app-nav a,
+.app-header__inner--compact .app-logout {
+  padding: var(--space-2) var(--space-3);
+  color: var(--ink);
+  border: 0;
+  border-left: 4px solid transparent;
+  border-radius: 0;
+}
 
-  .app-nav a:hover,
-  .app-nav a.active {
-    border-bottom: 0;
-    border-left-color: var(--signal);
-  }
+.app-header__inner--compact .app-nav a:hover,
+.app-header__inner--compact .app-nav a.active {
+  background: var(--mist);
+  border-bottom: 0;
+  border-left-color: var(--pitch);
+}
 
-  .app-header__inner--open .app-logout {
-    order: 5;
-    flex: 0 0 100%;
-    display: block;
-    margin-bottom: var(--space-2);
-  }
+.app-header__inner--compact .app-nav a.active {
+  color: var(--pitch-dark);
+}
+
+/* «Cerrar sesión» se ve como una opción más del cuadro, separada por una línea. */
+.app-header__inner--compact .app-logout {
+  order: 0;
+  margin-top: var(--space-2);
+  text-align: left;
+  font-weight: 600;
+  background: transparent;
+  border-top: 1px solid var(--line);
+}
+
+.app-header__inner--compact .app-logout:hover:not(:disabled) {
+  color: var(--ink);
+  background: var(--mist);
+  border-color: var(--line);
+  border-left-color: var(--pitch);
 }

@@ -11,3 +11,9 @@ export const ROLE_LABELS: Record<Role, string> = {
   COACH: 'Entrenador',
   GUARDIAN: 'Acudiente',
 };
+
+/** Estado de una disciplina, un grupo o una cuenta, como lo ve el usuario. */
+export const ENTITY_STATUS_LABELS: Record<EntityStatus, string> = {
+  ACTIVE: 'Activo',
+  INACTIVE: 'Inactivo',
+};

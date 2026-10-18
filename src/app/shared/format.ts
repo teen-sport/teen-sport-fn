@@ -105,12 +105,24 @@ export interface PeriodOption {
   label: string;
 }
 
-/** El mes actual y los siguientes, para elegir el mes de inicio (el API no acepta meses pasados). */
-export function periodOptions(count = 6, now: Date = new Date()): PeriodOption[] {
+/**
+ * Meses consecutivos «YYYY-MM» con su nombre, desde `monthsBack` meses antes del actual hasta
+ * `monthsAhead` meses después. Sirve para listas desplegables de meses.
+ */
+export function periodRange(
+  monthsBack: number,
+  monthsAhead: number,
+  now: Date = new Date(),
+): PeriodOption[] {
   const [year, month] = currentPeriod(now).split('-').map(Number);
-  return Array.from({ length: count }, (_, offset) => {
-    const date = new Date(Date.UTC(year, month - 1 + offset, 1));
+  return Array.from({ length: monthsBack + monthsAhead + 1 }, (_, index) => {
+    const date = new Date(Date.UTC(year, month - 1 - monthsBack + index, 1));
     const value = `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, '0')}`;
     return { value, label: formatPeriod(value) };
   });
+}
+
+/** El mes actual y los siguientes, para elegir el mes de inicio (el API no acepta meses pasados). */
+export function periodOptions(count = 6, now: Date = new Date()): PeriodOption[] {
+  return periodRange(0, count - 1, now);
 }

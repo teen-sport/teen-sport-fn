@@ -1,0 +1,113 @@
+<h1>Disciplinas</h1>
+
+@if (notice(); as message) {
+  <p class="notice" role="status">{{ message }}</p>
+}
+@if (actionError(); as message) {
+  <p class="alert" role="alert">{{ message }}</p>
+}
+
+<div class="page-actions">
+  <a class="btn" routerLink="/admin/disciplines/new">Nueva disciplina</a>
+</div>
+
+<form class="toolbar" (submit)="$event.preventDefault()">
+  <div class="field">
+    <label for="status">Estado</label>
+    <select id="status" [formControl]="status">
+      <option value="">Todas</option>
+      <option value="ACTIVE">Activas</option>
+      <option value="INACTIVE">Inactivas</option>
+    </select>
+  </div>
+</form>
+
+@if (loading()) {
+  <p role="status">Cargando disciplinas…</p>
+} @else if (loadError(); as message) {
+  <p class="alert" role="alert">{{ message }}</p>
+  <button type="button" (click)="load()">Reintentar</button>
+} @else if (disciplines(); as items) {
+  @if (items.length === 0) {
+    <p class="empty-state">
+      @if (status.value) {
+        No hay disciplinas con ese estado.
+      } @else {
+        Todavía no hay disciplinas. Crea la primera para poder armar grupos.
+      }
+    </p>
+  } @else {
+    <div class="card table-card">
+      <div class="table-wrap">
+        <table class="table">
+          <caption class="sr-only">
+            Disciplinas de la academia
+          </caption>
+          <thead>
+            <tr>
+              <th scope="col">Nombre</th>
+              <th scope="col">Mensualidad</th>
+              <th scope="col">Estado</th>
+              <th scope="col"><span class="sr-only">Acciones</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (discipline of items; track discipline.id) {
+              <tr>
+                <th scope="row">
+                  {{ discipline.name }}
+                  @if (discipline.description) {
+                    <small class="plain">{{ discipline.description }}</small>
+                  }
+                </th>
+                <td class="nowrap">{{ formatMoney(discipline.monthlyFee) }}</td>
+                <td><app-status-badge kind="entity" [value]="discipline.status" /></td>
+                <td class="nowrap">
+                  <a
+                    class="btn btn-secondary btn-small"
+                    [routerLink]="['/admin/disciplines', discipline.id, 'edit']"
+                    >Editar</a
+                  >
+                  @if (discipline.status === 'ACTIVE') {
+                    <button
+                      type="button"
+                      class="btn-secondary btn-small"
+                      (click)="askToDeactivate(discipline)"
+                    >
+                      Desactivar
+                    </button>
+                  } @else {
+                    <button
+                      type="button"
+                      class="btn-secondary btn-small"
+                      [disabled]="busy()"
+                      (click)="activate(discipline)"
+                    >
+                      Activar
+                    </button>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  }
+}
+
+@if (deactivating(); as discipline) {
+  <app-confirm-dialog
+    title="¿Desactivar la disciplina?"
+    [message]="
+      '«' +
+      discipline.name +
+      '» dejará de ofrecerse para nuevas inscripciones. Solo se puede desactivar si no tiene grupos activos.'
+    "
+    confirmLabel="Sí, desactivar"
+    [danger]="true"
+    [busy]="busy()"
+    (confirmed)="confirmDeactivate()"
+    (dismissed)="cancelDeactivate()"
+  />
+}

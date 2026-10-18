@@ -7,6 +7,7 @@ import {
   formatPeriod,
   formatSchedule,
   periodOptions,
+  periodRange,
   todayInAcademy,
 } from './format';
 
@@ -61,5 +62,16 @@ describe('format helpers', () => {
       '2027-02',
     ]);
     expect(options[0].label).toBe('Noviembre de 2026');
+  });
+
+  it('lists a range of months around the current one', () => {
+    const options = periodRange(2, 1, new Date('2026-01-20T15:00:00Z'));
+    expect(options.map((option) => option.value)).toEqual([
+      '2025-11',
+      '2025-12',
+      '2026-01',
+      '2026-02',
+    ]);
+    expect(options[1].label).toBe('Diciembre de 2025');
   });
 });

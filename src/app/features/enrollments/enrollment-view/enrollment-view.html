@@ -67,7 +67,20 @@
     }
   </section>
 
-  @if (inForce()) {
+  @if (current.status === 'PENDING_REVIEW') {
+    <section class="card payment">
+      <h2>Pago de la mensualidad</h2>
+      <p class="hint">
+        Podrás avisar tu pago cuando la academia confirme la inscripción. Por ahora no tienes que
+        hacer nada.
+      </p>
+    </section>
+  } @else if (current.status === 'ACTIVE' && !canReportPayment()) {
+    <section class="card payment">
+      <h2>Pago de la mensualidad</h2>
+      <p>Tu pago está al día. Si la academia lo marca como pendiente, podrás avisarlo aquí.</p>
+    </section>
+  } @else if (canReportPayment()) {
     <section class="card payment">
       <h2>Pago de la mensualidad</h2>
       @if (current.paymentReported) {

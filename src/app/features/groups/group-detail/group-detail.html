@@ -1,0 +1,138 @@
+@if (loading()) {
+  <h1>Grupo</h1>
+  <p role="status">Cargando el grupo…</p>
+} @else if (loadError(); as message) {
+  <h1>Grupo</h1>
+  <p class="alert" role="alert">{{ message }}</p>
+  <div class="actions">
+    <button type="button" (click)="load()">Reintentar</button>
+    <a class="btn btn-secondary" routerLink="/admin/groups">Volver a grupos</a>
+  </div>
+} @else if (group(); as current) {
+  <h1>{{ current.name }}</h1>
+
+  <p class="page-actions">
+    <a class="btn btn-secondary" routerLink="/admin/groups">← Volver a grupos</a>
+  </p>
+
+  @if (notice(); as message) {
+    <p class="notice" role="status">{{ message }}</p>
+  }
+  @if (actionError(); as message) {
+    <p class="alert" role="alert">{{ message }}</p>
+  }
+
+  <section class="card" aria-labelledby="summary-title">
+    <h2 id="summary-title">Resumen</h2>
+    <dl class="details">
+      <div>
+        <dt>Disciplina</dt>
+        <dd>{{ current.discipline.name }}</dd>
+      </div>
+      <div>
+        <dt>Entrenador</dt>
+        <dd>{{ current.coach.fullName }}</dd>
+      </div>
+      <div>
+        <dt>Estado</dt>
+        <dd><app-status-badge kind="entity" [value]="current.status" /></dd>
+      </div>
+    </dl>
+    <div class="actions">
+      @if (current.status === 'ACTIVE') {
+        <button type="button" class="btn-secondary" (click)="askToDeactivate()">
+          Desactivar grupo
+        </button>
+      } @else {
+        <button type="button" class="btn-secondary" [disabled]="busy()" (click)="activate()">
+          Activar grupo
+        </button>
+      }
+    </div>
+  </section>
+
+  <section class="card" aria-labelledby="data-title">
+    <h2 id="data-title">Nombre y capacidad</h2>
+    <form [formGroup]="dataForm" (submit)="$event.preventDefault(); saveData()" novalidate>
+      @if (dataError(); as message) {
+        <p class="alert" role="alert">{{ message }}</p>
+      }
+      <div class="row">
+        @let nameError = firstError(dataForm.controls.name);
+        <div class="field">
+          <label for="name">Nombre del grupo</label>
+          <input
+            id="name"
+            type="text"
+            formControlName="name"
+            autocomplete="off"
+            [attr.aria-invalid]="nameError ? 'true' : null"
+            [attr.aria-describedby]="nameError ? 'name-error' : null"
+          />
+          @if (nameError) {
+            <p class="error" id="name-error">{{ nameError }}</p>
+          }
+        </div>
+
+        @let capacityError = firstError(dataForm.controls.maxCapacity);
+        <div class="field">
+          <label for="maxCapacity">Capacidad máxima (1 a {{ maxCapacity }})</label>
+          <input
+            id="maxCapacity"
+            type="number"
+            min="1"
+            [max]="maxCapacity"
+            formControlName="maxCapacity"
+            [attr.aria-invalid]="capacityError ? 'true' : null"
+            [attr.aria-describedby]="capacityError ? 'maxCapacity-error' : null"
+          />
+          @if (capacityError) {
+            <p class="error" id="maxCapacity-error">{{ capacityError }}</p>
+          }
+        </div>
+      </div>
+      <div class="actions">
+        <button type="submit" [disabled]="savingData()">
+          {{ savingData() ? 'Guardando…' : 'Guardar cambios' }}
+        </button>
+      </div>
+    </form>
+  </section>
+
+  <section class="card" aria-labelledby="coach-title">
+    <h2 id="coach-title">Entrenador</h2>
+    <p class="hint">
+      Las sesiones futuras del grupo pasan al nuevo entrenador; las anteriores conservan al que las
+      dio. El nuevo entrenador no debe tener horarios que se crucen con los del grupo.
+    </p>
+    <form (submit)="$event.preventDefault(); changeCoach()">
+      <div class="field">
+        <label for="coachId">Entrenador del grupo</label>
+        <select id="coachId" [formControl]="coachControl">
+          @for (coach of coaches(); track coach.id) {
+            <option [value]="coach.id">{{ coach.fullName }}</option>
+          }
+        </select>
+      </div>
+      <div class="actions">
+        <button type="submit" [disabled]="savingCoach() || !coachChanged()">
+          {{ savingCoach() ? 'Cambiando…' : 'Cambiar entrenador' }}
+        </button>
+      </div>
+    </form>
+  </section>
+
+  <app-schedule-manager [groupId]="current.id" [schedules]="current.schedules" />
+
+  @if (confirmingDeactivate()) {
+    <app-confirm-dialog
+      title="¿Desactivar el grupo?"
+      message="Dejará de ofrecerse para nuevas inscripciones. No se puede desactivar si tiene inscripciones vigentes o sesiones programadas."
+      confirmLabel="Sí, desactivar"
+      [danger]="true"
+      [busy]="busy()"
+      (confirmed)="confirmDeactivate()"
+      (dismissed)="cancelDeactivate()"
+    />
+  }
+}

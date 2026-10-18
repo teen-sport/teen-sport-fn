@@ -19,13 +19,20 @@ describe('HomeShell', () => {
   const el = (): HTMLElement => fixture.nativeElement as HTMLElement;
 
   it.each(['GUARDIAN', 'COACH', 'ADMIN'] as const)(
-    'shows the title and points to the profile for a %s',
+    'greets the user by name and points to the profile for a %s',
     async (role) => {
       await setup(role);
-      expect(el().querySelector('h1')?.textContent).toContain('Inicio');
+      expect(el().querySelector('h1')?.textContent?.trim()).toBe('¡Hola, Marta!');
       expect(el().querySelector('.profile-hint a[href="/profile"]')).toBeTruthy();
     },
   );
+
+  it('updates the greeting when the user changes their name in the profile', async () => {
+    await setup('GUARDIAN');
+    TestBed.inject(SessionService).updateUser({ firstNames: 'María Fernanda', lastNames: 'Gómez' });
+    await fixture.whenStable();
+    expect(el().querySelector('h1')?.textContent?.trim()).toBe('¡Hola, María Fernanda!');
+  });
 
   it('says that the options will appear while a role has no shortcuts yet', async () => {
     await setup('COACH');
@@ -48,6 +55,19 @@ describe('HomeShell', () => {
       '/guardian/groups',
       '/guardian/enrollments',
       '/guardian/payments',
+    ]);
+  });
+
+  it('shows the shortcuts of the administrator', async () => {
+    await setup('ADMIN');
+    expect(el().querySelector('.empty')).toBeNull();
+    const cards = Array.from(el().querySelectorAll<HTMLAnchorElement>('.shortcuts a.shortcut'));
+    expect(cards.map((card) => card.getAttribute('href'))).toEqual([
+      '/admin/disciplines',
+      '/admin/coaches',
+      '/admin/groups',
+      '/admin/enrollments',
+      '/admin/payments',
     ]);
   });
 });

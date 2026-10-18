@@ -1,5 +1,5 @@
 import { apiError } from '../../../testing/auth-fixtures';
-import { enrollmentErrorMessage } from './enrollment-errors';
+import { adminEnrollmentErrorMessage, enrollmentErrorMessage } from './enrollment-errors';
 
 describe('enrollmentErrorMessage', () => {
   it.each([
@@ -26,5 +26,36 @@ describe('enrollmentErrorMessage', () => {
     expect(
       enrollmentErrorMessage(apiError({ code: 'NETWORK_ERROR', message: 'No se pudo conectar.' })),
     ).toBe('No se pudo conectar.');
+  });
+});
+
+describe('adminEnrollmentErrorMessage', () => {
+  it.each([
+    ['NO_AVAILABLE_SPOTS', 'Elige otro grupo'],
+    ['GROUP_INACTIVE', 'inactivo'],
+    ['GROUP_OTHER_DISCIPLINE', 'misma disciplina'],
+    ['INSUFFICIENT_AMOUNT', 'menor que la mensualidad'],
+    ['FUTURE_DATE', 'posterior a hoy'],
+    ['PAYMENT_ALREADY_REGISTERED', 'ya tiene un pago registrado'],
+    ['USE_PAYMENT_REGISTRATION', 'se registra un pago'],
+    ['NOT_FOUND', 'No se encontró'],
+  ] as const)('explains %s in the words of the administrator', (code, text) => {
+    expect(
+      adminEnrollmentErrorMessage(apiError({ code, message: 'texto del servidor' })),
+    ).toContain(text);
+  });
+
+  it('reuses the message of the guardian when the administrator has none of his own', () => {
+    expect(
+      adminEnrollmentErrorMessage(apiError({ code: 'INVALID_STATE', message: 'del servidor' })),
+    ).toContain('ya cambió de estado');
+  });
+
+  it('falls back to the message of the server for any other code', () => {
+    expect(
+      adminEnrollmentErrorMessage(
+        apiError({ code: 'INTERNAL_ERROR', message: 'Error del servidor.' }),
+      ),
+    ).toBe('Error del servidor.');
   });
 });

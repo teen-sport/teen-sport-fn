@@ -1,0 +1,129 @@
+<h1>Entrenadores</h1>
+
+@if (notice(); as message) {
+  <p class="notice" role="status">{{ message }}</p>
+}
+@if (actionError(); as message) {
+  <p class="alert" role="alert">{{ message }}</p>
+}
+
+<div class="page-actions">
+  <a class="btn" routerLink="/admin/coaches/new">Nuevo entrenador</a>
+</div>
+
+<form class="toolbar" role="search" (submit)="$event.preventDefault(); applySearch()">
+  <div class="field">
+    <label for="search">Buscar por nombre, correo o documento</label>
+    <input id="search" type="search" [formControl]="search" autocomplete="off" />
+  </div>
+  <div class="field">
+    <label for="status">Estado</label>
+    <select id="status" [formControl]="status">
+      <option value="">Todos</option>
+      <option value="ACTIVE">Activos</option>
+      <option value="INACTIVE">Inactivos</option>
+    </select>
+  </div>
+  <button type="submit">Buscar</button>
+  @if (search.value || status.value) {
+    <button type="button" class="btn-secondary" (click)="clearSearch()">Limpiar</button>
+  }
+</form>
+
+@if (loading()) {
+  <p role="status">Cargando entrenadores…</p>
+} @else if (loadError(); as message) {
+  <p class="alert" role="alert">{{ message }}</p>
+  <button type="button" (click)="load()">Reintentar</button>
+} @else if (result(); as current) {
+  @if (current.content.length === 0) {
+    <p class="empty-state">
+      @if (filtering) {
+        No encontramos entrenadores con esos filtros.
+      } @else {
+        Todavía no hay entrenadores. Crea el primero para poder armar grupos.
+      }
+    </p>
+  } @else {
+    <div class="card table-card">
+      <div class="table-wrap">
+        <table class="table">
+          <caption class="sr-only">
+            Entrenadores de la academia
+          </caption>
+          <thead>
+            <tr>
+              <th scope="col">Nombre</th>
+              <th scope="col">Documento</th>
+              <th scope="col">Contacto</th>
+              <th scope="col">Especialidad</th>
+              <th scope="col">Estado</th>
+              <th scope="col"><span class="sr-only">Acciones</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (coach of current.content; track coach.id) {
+              <tr>
+                <th scope="row">{{ fullName(coach) }}</th>
+                <td>{{ idTypeLabel(coach.idType) }} {{ coach.idNumber }}</td>
+                <td>
+                  {{ coach.email }}
+                  <small class="plain">{{ coach.phone }}</small>
+                </td>
+                <td>{{ coach.coach?.specialty || '—' }}</td>
+                <td><app-status-badge kind="entity" [value]="coach.status" /></td>
+                <td class="nowrap">
+                  <a
+                    class="btn btn-secondary btn-small"
+                    [routerLink]="['/admin/coaches', coach.id, 'edit']"
+                    >Editar</a
+                  >
+                  @if (coach.status === 'ACTIVE') {
+                    <button
+                      type="button"
+                      class="btn-secondary btn-small"
+                      (click)="askToDeactivate(coach)"
+                    >
+                      Desactivar
+                    </button>
+                  } @else {
+                    <button
+                      type="button"
+                      class="btn-secondary btn-small"
+                      [disabled]="busy()"
+                      (click)="activate(coach)"
+                    >
+                      Activar
+                    </button>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <app-pagination
+      [page]="current.page"
+      [totalPages]="current.totalPages"
+      [totalElements]="current.totalElements"
+      (pageChange)="goTo($event)"
+    />
+  }
+}
+
+@if (deactivating(); as coach) {
+  <app-confirm-dialog
+    title="¿Desactivar al entrenador?"
+    [message]="
+      fullName(coach) +
+      ' ya no podrá iniciar sesión. Solo se puede desactivar si no tiene grupos activos.'
+    "
+    confirmLabel="Sí, desactivar"
+    [danger]="true"
+    [busy]="busy()"
+    (confirmed)="confirmDeactivate()"
+    (dismissed)="cancelDeactivate()"
+  />
+}

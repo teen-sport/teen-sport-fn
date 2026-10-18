@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { Page } from '../../Core/Models/page';
 import {
+  ConfirmEnrollmentRequest,
   CreateEnrollmentRequest,
   EnrollmentDetail,
   EnrollmentQuery,
@@ -11,7 +12,11 @@ import {
   PaymentReportRequest,
 } from './enrollment.models';
 
-/** Inscripciones del acudiente: pedir, consultar, cancelar y avisar un pago (E6–E8, E14, E16). */
+/**
+ * Inscripciones. El acudiente pide, consulta, cancela y avisa un pago (E6–E8, E14, E16); el
+ * administrador además las lista con más filtros, las confirma, las rechaza y cambia su grupo
+ * (E9, E10, E12, E13).
+ */
 @Injectable({ providedIn: 'root' })
 export class EnrollmentService {
   private readonly http = inject(HttpClient);
@@ -22,20 +27,28 @@ export class EnrollmentService {
     return this.http.post<EnrollmentDetail>(this.url, request);
   }
 
-  /** E7: lista paginada; el servidor solo entrega las de los deportistas del acudiente. */
+  /**
+   * E7: lista paginada. El servidor entrega al acudiente solo las de sus deportistas y al
+   * administrador todas, que además puede filtrar por pago, mes, disciplina y grupo.
+   */
   list(query: EnrollmentQuery = {}): Observable<Page<EnrollmentSummary>> {
     let params = new HttpParams();
-    if (query.page !== undefined) {
-      params = params.set('page', query.page);
-    }
-    if (query.size !== undefined) {
-      params = params.set('size', query.size);
-    }
-    if (query.status) {
-      params = params.set('status', query.status);
-    }
-    if (query.athleteId != null) {
-      params = params.set('athleteId', query.athleteId);
+    const filters: [string, string | number | boolean | null | undefined][] = [
+      ['page', query.page],
+      ['size', query.size],
+      ['status', query.status],
+      ['paymentStatus', query.paymentStatus],
+      ['paymentReported', query.paymentReported],
+      ['period', query.period],
+      ['disciplineId', query.disciplineId],
+      ['groupId', query.groupId],
+      ['athleteId', query.athleteId],
+    ];
+    // Un filtro vacío («Todas») no se envía; el 0 de la primera página sí es un valor.
+    for (const [name, value] of filters) {
+      if (value !== undefined && value !== null && value !== '') {
+        params = params.set(name, value);
+      }
     }
     return this.http.get<Page<EnrollmentSummary>>(this.url, { params });
   }
@@ -58,5 +71,23 @@ export class EnrollmentService {
   reportPayment(id: number, notes?: string): Observable<EnrollmentDetail> {
     const body: PaymentReportRequest = notes?.trim() ? { notes: notes.trim() } : {};
     return this.http.post<EnrollmentDetail>(`${this.url}/${id}/payment-report`, body);
+  }
+
+  /**
+   * E9 (administrador): confirma una inscripción en revisión. Opcionalmente cambia el grupo y registra
+   * el primer pago en el mismo paso; si el pago es inválido no se confirma nada.
+   */
+  confirm(id: number, request: ConfirmEnrollmentRequest = {}): Observable<EnrollmentDetail> {
+    return this.http.post<EnrollmentDetail>(`${this.url}/${id}/confirm`, request);
+  }
+
+  /** E10 (administrador): rechaza una inscripción en revisión. El motivo es obligatorio. */
+  reject(id: number, reason: string): Observable<EnrollmentDetail> {
+    return this.http.post<EnrollmentDetail>(`${this.url}/${id}/reject`, { reason: reason.trim() });
+  }
+
+  /** E13 (administrador): pasa la inscripción a otro grupo activo de la misma disciplina con cupo. */
+  changeGroup(id: number, groupId: number): Observable<EnrollmentDetail> {
+    return this.http.patch<EnrollmentDetail>(`${this.url}/${id}/group`, { groupId });
   }
 }

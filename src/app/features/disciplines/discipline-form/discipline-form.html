@@ -1,0 +1,81 @@
+<h1>{{ title }}</h1>
+
+@if (loading()) {
+  <p role="status">Cargando la disciplina…</p>
+} @else if (loadError(); as message) {
+  <p class="alert" role="alert">{{ message }}</p>
+  <div class="actions">
+    <button type="button" (click)="load()">Reintentar</button>
+    <a class="btn btn-secondary" routerLink="/admin/disciplines">Volver a disciplinas</a>
+  </div>
+} @else {
+  <section class="card form-card">
+    @if (editing) {
+      <p class="hint">
+        Si cambias la mensualidad, el nuevo valor se aplica a los pagos que registres desde ahora.
+      </p>
+    }
+
+    <form [formGroup]="form" (submit)="$event.preventDefault(); submit()" novalidate>
+      @if (formError(); as message) {
+        <p class="alert" role="alert">{{ message }}</p>
+      }
+
+      @let nameError = firstError(form.controls.name);
+      <div class="field">
+        <label for="name">Nombre</label>
+        <input
+          id="name"
+          type="text"
+          formControlName="name"
+          autocomplete="off"
+          [attr.aria-invalid]="nameError ? 'true' : null"
+          [attr.aria-describedby]="nameError ? 'name-error' : null"
+        />
+        @if (nameError) {
+          <p class="error" id="name-error">{{ nameError }}</p>
+        }
+      </div>
+
+      @let descriptionError = firstError(form.controls.description);
+      <div class="field">
+        <label for="description">Descripción (opcional)</label>
+        <textarea
+          id="description"
+          rows="3"
+          formControlName="description"
+          [attr.aria-invalid]="descriptionError ? 'true' : null"
+          [attr.aria-describedby]="descriptionError ? 'description-error' : null"
+        ></textarea>
+        @if (descriptionError) {
+          <p class="error" id="description-error">{{ descriptionError }}</p>
+        }
+      </div>
+
+      @let feeError = firstError(form.controls.monthlyFee);
+      <div class="field">
+        <label for="monthlyFee">Mensualidad (pesos colombianos)</label>
+        <input
+          id="monthlyFee"
+          type="number"
+          inputmode="decimal"
+          min="0"
+          step="1000"
+          formControlName="monthlyFee"
+          [attr.aria-invalid]="feeError ? 'true' : null"
+          [attr.aria-describedby]="feeError ? 'monthlyFee-error' : null"
+        />
+        @if (feeError) {
+          <p class="error" id="monthlyFee-error">{{ feeError }}</p>
+        }
+      </div>
+
+      <div class="actions">
+        <button type="submit" [disabled]="submitting()">
+          {{ submitting() ? 'Guardando…' : editing ? 'Guardar cambios' : 'Crear disciplina' }}
+        </button>
+        <a class="btn btn-secondary" routerLink="/admin/disciplines">Cancelar</a>
+      </div>
+    </form>
+  </section>
+}

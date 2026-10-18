@@ -1,0 +1,74 @@
+<form [formGroup]="form" (submit)="$event.preventDefault(); submit()" novalidate>
+  <div class="row">
+    @let amountError = amountMessage();
+    <div class="field">
+      <label for="amountPaid">Monto pagado (COP)</label>
+      <input
+        id="amountPaid"
+        type="number"
+        inputmode="numeric"
+        min="1"
+        step="any"
+        formControlName="amountPaid"
+        [attr.aria-invalid]="amountError ? 'true' : null"
+        [attr.aria-describedby]="amountError ? 'amountPaid-error' : 'amountPaid-hint'"
+      />
+      @if (amountError) {
+        <p class="error" id="amountPaid-error">{{ amountError }}</p>
+      } @else if (monthlyFee(); as fee) {
+        <p class="hint" id="amountPaid-hint">
+          Mensualidad de la disciplina: {{ formatMoney(fee) }}
+        </p>
+      }
+    </div>
+
+    @let dateError = firstError(form.controls.paymentDate);
+    <div class="field">
+      <label for="paymentDate">Fecha del pago</label>
+      <input
+        id="paymentDate"
+        type="date"
+        [max]="today"
+        formControlName="paymentDate"
+        [attr.aria-invalid]="dateError ? 'true' : null"
+        [attr.aria-describedby]="dateError ? 'paymentDate-error' : null"
+      />
+      @if (dateError) {
+        <p class="error" id="paymentDate-error">{{ dateError }}</p>
+      }
+    </div>
+  </div>
+
+  @let referenceError = firstError(form.controls.receiptReference);
+  <div class="field">
+    <label for="receiptReference">Comprobante o referencia (opcional)</label>
+    <input
+      id="receiptReference"
+      type="text"
+      autocomplete="off"
+      formControlName="receiptReference"
+      [attr.aria-invalid]="referenceError ? 'true' : null"
+      [attr.aria-describedby]="referenceError ? 'receiptReference-error' : null"
+    />
+    @if (referenceError) {
+      <p class="error" id="receiptReference-error">{{ referenceError }}</p>
+    }
+  </div>
+
+  @let notesError = firstError(form.controls.notes);
+  <div class="field">
+    <label for="paymentNotes">Nota (opcional)</label>
+    <textarea
+      id="paymentNotes"
+      rows="2"
+      formControlName="notes"
+      [attr.aria-invalid]="notesError ? 'true' : null"
+      [attr.aria-describedby]="notesError ? 'paymentNotes-error' : null"
+    ></textarea>
+    @if (notesError) {
+      <p class="error" id="paymentNotes-error">{{ notesError }}</p>
+    }
+  </div>
+
+  <button type="submit" [disabled]="busy()">{{ busy() ? 'Guardando…' : submitLabel() }}</button>
+</form>

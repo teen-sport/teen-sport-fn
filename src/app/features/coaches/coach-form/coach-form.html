@@ -1,0 +1,186 @@
+<h1>{{ title }}</h1>
+
+@if (loading()) {
+  <p role="status">Cargando los datos del entrenador…</p>
+} @else if (loadError(); as message) {
+  <p class="alert" role="alert">{{ message }}</p>
+  <div class="actions">
+    <button type="button" (click)="load()">Reintentar</button>
+    <a class="btn btn-secondary" routerLink="/admin/coaches">Volver a entrenadores</a>
+  </div>
+} @else {
+  <section class="card form-card">
+    @if (editing) {
+      <p class="hint">
+        El documento no se puede cambiar. La contraseña la cambia el propio entrenador desde «Mi
+        perfil».
+      </p>
+    }
+
+    <form [formGroup]="form" (submit)="$event.preventDefault(); submit()" novalidate>
+      @if (formError(); as message) {
+        <p class="alert" role="alert">{{ message }}</p>
+      }
+
+      <div class="row">
+        @let firstNamesError = firstError(form.controls.firstNames);
+        <div class="field">
+          <label for="firstNames">Nombres</label>
+          <input
+            id="firstNames"
+            type="text"
+            formControlName="firstNames"
+            autocomplete="off"
+            [attr.aria-invalid]="firstNamesError ? 'true' : null"
+            [attr.aria-describedby]="firstNamesError ? 'firstNames-error' : null"
+          />
+          @if (firstNamesError) {
+            <p class="error" id="firstNames-error">{{ firstNamesError }}</p>
+          }
+        </div>
+
+        @let lastNamesError = firstError(form.controls.lastNames);
+        <div class="field">
+          <label for="lastNames">Apellidos</label>
+          <input
+            id="lastNames"
+            type="text"
+            formControlName="lastNames"
+            autocomplete="off"
+            [attr.aria-invalid]="lastNamesError ? 'true' : null"
+            [attr.aria-describedby]="lastNamesError ? 'lastNames-error' : null"
+          />
+          @if (lastNamesError) {
+            <p class="error" id="lastNames-error">{{ lastNamesError }}</p>
+          }
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="field">
+          <label for="idType">Tipo de documento</label>
+          <select id="idType" formControlName="idType">
+            @for (type of idTypes; track type.value) {
+              <option [value]="type.value">{{ type.label }}</option>
+            }
+          </select>
+        </div>
+
+        @let idNumberError = firstError(form.controls.idNumber);
+        <div class="field">
+          <label for="idNumber">Número de documento</label>
+          <input
+            id="idNumber"
+            type="text"
+            inputmode="numeric"
+            formControlName="idNumber"
+            autocomplete="off"
+            [attr.aria-invalid]="idNumberError ? 'true' : null"
+            [attr.aria-describedby]="idNumberError ? 'idNumber-error' : null"
+          />
+          @if (idNumberError) {
+            <p class="error" id="idNumber-error">{{ idNumberError }}</p>
+          }
+        </div>
+      </div>
+
+      <div class="row">
+        @let emailError = firstError(form.controls.email);
+        <div class="field">
+          <label for="email">Correo electrónico</label>
+          <input
+            id="email"
+            type="email"
+            formControlName="email"
+            autocomplete="off"
+            [attr.aria-invalid]="emailError ? 'true' : null"
+            [attr.aria-describedby]="emailError ? 'email-error' : null"
+          />
+          @if (emailError) {
+            <p class="error" id="email-error">{{ emailError }}</p>
+          }
+        </div>
+
+        @let phoneError = firstError(form.controls.phone);
+        <div class="field">
+          <label for="phone">Teléfono</label>
+          <input
+            id="phone"
+            type="tel"
+            formControlName="phone"
+            autocomplete="off"
+            [attr.aria-invalid]="phoneError ? 'true' : null"
+            [attr.aria-describedby]="phoneError ? 'phone-error' : null"
+          />
+          @if (phoneError) {
+            <p class="error" id="phone-error">{{ phoneError }}</p>
+          }
+        </div>
+      </div>
+
+      <div class="row">
+        @let specialtyError = firstError(form.controls.specialty);
+        <div class="field">
+          <label for="specialty">Especialidad (opcional)</label>
+          <input
+            id="specialty"
+            type="text"
+            formControlName="specialty"
+            autocomplete="off"
+            [attr.aria-invalid]="specialtyError ? 'true' : null"
+            [attr.aria-describedby]="specialtyError ? 'specialty-error' : null"
+          />
+          @if (specialtyError) {
+            <p class="error" id="specialty-error">{{ specialtyError }}</p>
+          }
+        </div>
+
+        @let yearsError = firstError(form.controls.yearsOfExperience);
+        <div class="field">
+          <label for="yearsOfExperience">Años de experiencia (opcional)</label>
+          <input
+            id="yearsOfExperience"
+            type="number"
+            min="0"
+            formControlName="yearsOfExperience"
+            [attr.aria-invalid]="yearsError ? 'true' : null"
+            [attr.aria-describedby]="yearsError ? 'yearsOfExperience-error' : null"
+          />
+          @if (yearsError) {
+            <p class="error" id="yearsOfExperience-error">{{ yearsError }}</p>
+          }
+        </div>
+      </div>
+
+      @if (!editing) {
+        @let passwordError = firstError(form.controls.password);
+        <div class="field">
+          <label for="password">Contraseña inicial</label>
+          <input
+            id="password"
+            type="password"
+            formControlName="password"
+            autocomplete="new-password"
+            [attr.aria-invalid]="passwordError ? 'true' : null"
+            aria-describedby="password-rules password-error"
+          />
+          <ul class="rules" id="password-rules">
+            @for (rule of rules(); track rule.text) {
+              <li [class.met]="rule.met">{{ rule.text }}</li>
+            }
+          </ul>
+          @if (passwordError) {
+            <p class="error" id="password-error">{{ passwordError }}</p>
+          }
+        </div>
+      }
+
+      <div class="actions">
+        <button type="submit" [disabled]="submitting()">
+          {{ submitting() ? 'Guardando…' : editing ? 'Guardar cambios' : 'Crear entrenador' }}
+        </button>
+        <a class="btn btn-secondary" routerLink="/admin/coaches">Cancelar</a>
+      </div>
+    </form>
+  </section>
+}
