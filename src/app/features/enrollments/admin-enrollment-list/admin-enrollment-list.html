@@ -1,0 +1,138 @@
+<h1>Inscripciones</h1>
+
+@if (setupLoading()) {
+  <p role="status">Cargando…</p>
+} @else if (setupError(); as message) {
+  <p class="alert" role="alert">{{ message }}</p>
+  <button type="button" (click)="loadSetup()">Reintentar</button>
+} @else {
+  <form class="toolbar toolbar-dense" [formGroup]="filters" (submit)="$event.preventDefault()">
+    <div class="field">
+      <label for="status">Estado</label>
+      <select id="status" formControlName="status">
+        <option value="">Todos</option>
+        @for (option of statusOptions; track option.value) {
+          <option [value]="option.value">{{ option.label }}</option>
+        }
+      </select>
+    </div>
+    <div class="field">
+      <label for="paymentStatus">Pago</label>
+      <select id="paymentStatus" formControlName="paymentStatus">
+        <option value="">Todos</option>
+        @for (option of paymentOptions; track option.value) {
+          <option [value]="option.value">{{ option.label }}</option>
+        }
+      </select>
+    </div>
+    <div class="field">
+      <label for="period">Mes de inicio</label>
+      <select id="period" formControlName="period">
+        <option value="">Todos</option>
+        @for (option of periodOptions; track option.value) {
+          <option [value]="option.value">{{ option.label }}</option>
+        }
+      </select>
+    </div>
+    <div class="field">
+      <label for="disciplineId">Disciplina</label>
+      <select id="disciplineId" formControlName="disciplineId">
+        <option value="">Todas</option>
+        @for (discipline of disciplines(); track discipline.id) {
+          <option [value]="discipline.id">{{ discipline.name }}</option>
+        }
+      </select>
+    </div>
+    <div class="field">
+      <label for="groupId">Grupo</label>
+      <select id="groupId" formControlName="groupId">
+        <option value="">Todos</option>
+        @for (group of groupOptions(); track group.id) {
+          <option [value]="group.id">{{ group.name }}</option>
+        }
+      </select>
+    </div>
+    <div class="field">
+      <label class="check">
+        <input type="checkbox" formControlName="reportedOnly" />
+        <span>Solo con pago avisado</span>
+      </label>
+    </div>
+  </form>
+
+  @if (loading() && !result()) {
+    <p role="status">Cargando inscripciones…</p>
+  } @else if (loadError(); as message) {
+    <p class="alert" role="alert">{{ message }}</p>
+    <button type="button" (click)="load()">Reintentar</button>
+  } @else if (result(); as current) {
+    @if (current.content.length === 0) {
+      <p class="empty-state">
+        @if (filtering) {
+          No hay inscripciones con esos filtros.
+          <button type="button" class="btn-secondary btn-small" (click)="clearFilters()">
+            Quitar filtros
+          </button>
+        } @else {
+          Todavía no hay inscripciones. Aparecerán aquí cuando un acudiente solicite la primera.
+        }
+      </p>
+    } @else {
+      <div class="card table-card" [attr.aria-busy]="loading()">
+        <div class="table-wrap">
+          <table class="table">
+            <caption class="sr-only">
+              Inscripciones de la academia
+            </caption>
+            <thead>
+              <tr>
+                <th scope="col">Deportista</th>
+                <th scope="col">Disciplina y grupo</th>
+                <th scope="col">Mes de inicio</th>
+                <th scope="col">Estado</th>
+                <th scope="col">Pago</th>
+                <th scope="col"><span class="sr-only">Acciones</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (enrollment of current.content; track enrollment.id) {
+                <tr>
+                  <th scope="row">
+                    {{ enrollment.athlete.firstNames }} {{ enrollment.athlete.lastNames }}
+                  </th>
+                  <td>{{ enrollment.discipline.name }} · {{ enrollment.group.name }}</td>
+                  <td>{{ formatPeriod(enrollment.period) }}</td>
+                  <td><app-status-badge kind="enrollment" [value]="enrollment.status" /></td>
+                  <td>
+                    @if (isInForce(enrollment)) {
+                      <app-status-badge kind="payment" [value]="enrollment.paymentStatus" />
+                      @if (enrollment.paymentReported) {
+                        <small class="reported">Pago avisado</small>
+                      }
+                    } @else {
+                      —
+                    }
+                  </td>
+                  <td>
+                    <a
+                      class="btn btn-secondary btn-small"
+                      [routerLink]="['/admin/enrollments', enrollment.id]"
+                      >{{ enrollment.status === 'PENDING_REVIEW' ? 'Revisar' : 'Ver detalle' }}</a
+                    >
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <app-pagination
+        [page]="current.page"
+        [totalPages]="current.totalPages"
+        [totalElements]="current.totalElements"
+        (pageChange)="goTo($event)"
+      />
+    }
+  }
+}

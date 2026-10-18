@@ -1,5 +1,6 @@
 import { AthleteRef, IdName, Schedule } from '../../Core/Models/common';
 import { EnrollmentStatus, PaymentStatus } from '../../Core/Models/enrollment-status';
+import { RegisterPaymentRequest } from '../payments/payment.models';
 
 /** Inscripción en los listados (GET /enrollments). */
 export interface EnrollmentSummary {
@@ -31,12 +32,28 @@ export interface CreateEnrollmentRequest {
   period: string;
 }
 
-/** Filtros del listado de inscripciones. La primera página es la 0. */
+/**
+ * Filtros del listado de inscripciones. La primera página es la 0. El acudiente solo usa `status` y
+ * `athleteId`; el resto son filtros del administrador.
+ */
 export interface EnrollmentQuery {
   page?: number;
   size?: number;
   status?: EnrollmentStatus | null;
   athleteId?: number | null;
+  paymentStatus?: PaymentStatus | null;
+  /** true = solo las que el acudiente avisó como pagadas y falta registrar. */
+  paymentReported?: boolean | null;
+  /** Mes de inicio «YYYY-MM». */
+  period?: string | null;
+  disciplineId?: number | null;
+  groupId?: number | null;
+}
+
+/** Cuerpo opcional de POST /enrollments/{id}/confirm (E9): cambiar de grupo y/o registrar el primer pago. */
+export interface ConfirmEnrollmentRequest {
+  groupId?: number;
+  payment?: RegisterPaymentRequest;
 }
 
 /** Cuerpo opcional de POST /enrollments/{id}/payment-report (E16). */

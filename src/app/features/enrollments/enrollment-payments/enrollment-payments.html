@@ -1,0 +1,87 @@
+<section class="card" aria-labelledby="payment-title">
+  <h2 id="payment-title">Registrar un pago</h2>
+
+  <p>
+    Estado del pago:
+    <app-status-badge kind="payment" [value]="enrollment().paymentStatus" />
+  </p>
+  @if (enrollment().paymentReported) {
+    <p class="notice" role="status">
+      El acudiente avisó que ya pagó. Verifica el pago en la academia y regístralo aquí.
+    </p>
+  }
+  @if (paymentThisMonth(); as paid) {
+    <p class="notice" role="status">
+      Este mes ({{ formatPeriod(thisMonth) }}) ya tiene un pago registrado, del
+      {{ formatDate(paid.paymentDate) }}. Solo se admite un pago por mes: el siguiente se puede
+      registrar con una fecha de {{ formatPeriod(nextMonth) }} en adelante.
+    </p>
+  }
+  @if (actionError(); as message) {
+    <p class="alert" role="alert">{{ message }}</p>
+  }
+
+  <app-payment-form [monthlyFee]="monthlyFee()" [busy]="busy()" (submitted)="register($event)" />
+
+  @if (enrollment().paymentStatus === 'UP_TO_DATE') {
+    <div class="actions">
+      <button type="button" class="btn-secondary" [disabled]="busy()" (click)="askOverdue()">
+        Marcar en mora
+      </button>
+    </div>
+  }
+</section>
+
+<section class="card" aria-labelledby="history-title">
+  <h2 id="history-title">Pagos registrados</h2>
+  @if (historyError(); as message) {
+    <p class="alert" role="alert">{{ message }}</p>
+    <button type="button" (click)="loadHistory()">Reintentar</button>
+  } @else if (payments(); as list) {
+    @if (list.length === 0) {
+      <p class="empty-state">Esta inscripción todavía no tiene pagos registrados.</p>
+    } @else {
+      <div class="table-wrap">
+        <table class="table">
+          <caption class="sr-only">
+            Pagos de esta inscripción
+          </caption>
+          <thead>
+            <tr>
+              <th scope="col">Mes que cubre</th>
+              <th scope="col">Fecha</th>
+              <th scope="col">Monto</th>
+              <th scope="col">Comprobante</th>
+              <th scope="col">Registró</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (payment of list; track payment.id) {
+              <tr>
+                <th scope="row">{{ formatPeriod(payment.period) }}</th>
+                <td>{{ formatDate(payment.paymentDate) }}</td>
+                <td class="nowrap">{{ formatMoney(payment.amountPaid) }}</td>
+                <td>{{ payment.receiptReference || '—' }}</td>
+                <td>{{ payment.registeredBy?.fullName || '—' }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  } @else {
+    <p role="status">Cargando pagos…</p>
+  }
+</section>
+
+@if (confirmingOverdue()) {
+  <app-confirm-dialog
+    title="¿Marcar la inscripción en mora?"
+    [message]="overdueMessage()"
+    confirmLabel="Sí, marcar en mora"
+    [danger]="true"
+    [busy]="busy()"
+    (confirmed)="markOverdue()"
+    (dismissed)="closeOverdue()"
+  />
+}

@@ -1,0 +1,121 @@
+<h1>Nuevo grupo</h1>
+
+@if (loading()) {
+  <p role="status">Cargando disciplinas y entrenadores…</p>
+} @else if (loadError(); as message) {
+  <p class="alert" role="alert">{{ message }}</p>
+  <div class="actions">
+    <button type="button" (click)="load()">Reintentar</button>
+    <a class="btn btn-secondary" routerLink="/admin/groups">Volver a grupos</a>
+  </div>
+} @else if (disciplines().length === 0 || coaches().length === 0) {
+  <section class="card form-card">
+    <p class="empty-state">
+      Para crear un grupo necesitas al menos una disciplina activa y un entrenador activo.
+    </p>
+    <div class="actions">
+      @if (disciplines().length === 0) {
+        <a class="btn" routerLink="/admin/disciplines/new">Crear una disciplina</a>
+      }
+      @if (coaches().length === 0) {
+        <a class="btn" routerLink="/admin/coaches/new">Crear un entrenador</a>
+      }
+      <a class="btn btn-secondary" routerLink="/admin/groups">Volver a grupos</a>
+    </div>
+  </section>
+} @else {
+  <section class="card form-card">
+    <p class="hint">
+      El grupo nace activo y sin horarios; se los agregas en la pantalla siguiente. La capacidad es
+      de 1 a {{ maxCapacity }} deportistas.
+    </p>
+
+    <form [formGroup]="form" (submit)="$event.preventDefault(); submit()" novalidate>
+      @if (formError(); as message) {
+        <p class="alert" role="alert">{{ message }}</p>
+      }
+
+      <div class="row">
+        @let disciplineError = firstError(form.controls.disciplineId);
+        <div class="field">
+          <label for="disciplineId">Disciplina</label>
+          <select
+            id="disciplineId"
+            formControlName="disciplineId"
+            [attr.aria-invalid]="disciplineError ? 'true' : null"
+            [attr.aria-describedby]="disciplineError ? 'disciplineId-error' : null"
+          >
+            <option value="">Elige una disciplina</option>
+            @for (discipline of disciplines(); track discipline.id) {
+              <option [value]="discipline.id">{{ discipline.name }}</option>
+            }
+          </select>
+          @if (disciplineError) {
+            <p class="error" id="disciplineId-error">{{ disciplineError }}</p>
+          }
+        </div>
+
+        @let coachError = firstError(form.controls.coachId);
+        <div class="field">
+          <label for="coachId">Entrenador</label>
+          <select
+            id="coachId"
+            formControlName="coachId"
+            [attr.aria-invalid]="coachError ? 'true' : null"
+            [attr.aria-describedby]="coachError ? 'coachId-error' : null"
+          >
+            <option value="">Elige un entrenador</option>
+            @for (coach of coaches(); track coach.id) {
+              <option [value]="coach.id">{{ coach.fullName }}</option>
+            }
+          </select>
+          @if (coachError) {
+            <p class="error" id="coachId-error">{{ coachError }}</p>
+          }
+        </div>
+      </div>
+
+      <div class="row">
+        @let nameError = firstError(form.controls.name);
+        <div class="field">
+          <label for="name">Nombre del grupo</label>
+          <input
+            id="name"
+            type="text"
+            formControlName="name"
+            autocomplete="off"
+            [attr.aria-invalid]="nameError ? 'true' : null"
+            [attr.aria-describedby]="nameError ? 'name-error' : null"
+          />
+          @if (nameError) {
+            <p class="error" id="name-error">{{ nameError }}</p>
+          }
+        </div>
+
+        @let capacityError = firstError(form.controls.maxCapacity);
+        <div class="field">
+          <label for="maxCapacity">Capacidad máxima</label>
+          <input
+            id="maxCapacity"
+            type="number"
+            min="1"
+            [max]="maxCapacity"
+            formControlName="maxCapacity"
+            [attr.aria-invalid]="capacityError ? 'true' : null"
+            [attr.aria-describedby]="capacityError ? 'maxCapacity-error' : null"
+          />
+          @if (capacityError) {
+            <p class="error" id="maxCapacity-error">{{ capacityError }}</p>
+          }
+        </div>
+      </div>
+
+      <div class="actions">
+        <button type="submit" [disabled]="submitting()">
+          {{ submitting() ? 'Creando…' : 'Crear grupo' }}
+        </button>
+        <a class="btn btn-secondary" routerLink="/admin/groups">Cancelar</a>
+      </div>
+    </form>
+  </section>
+}

@@ -1,0 +1,138 @@
+<section class="card" aria-labelledby="schedules-title">
+  <h2 id="schedules-title">Horarios semanales</h2>
+
+  @if (notice(); as message) {
+    <p class="notice" role="status">{{ message }}</p>
+  }
+  @if (actionError(); as message) {
+    <p class="alert" role="alert">{{ message }}</p>
+  }
+
+  @if (items().length === 0) {
+    <p class="empty-state">
+      Este grupo todavía no tiene horarios. Agrega el primero: sin horarios no se puede programar su
+      entrenamiento.
+    </p>
+  } @else {
+    <div class="table-wrap">
+      <table class="table schedule-table">
+        <caption class="sr-only">
+          Horarios del grupo
+        </caption>
+        <thead>
+          <tr>
+            <th scope="col">Día</th>
+            <th scope="col">Desde</th>
+            <th scope="col">Hasta</th>
+            <th scope="col"><span class="sr-only">Acciones</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (schedule of items(); track schedule.id) {
+            <tr [class.editing]="editingId() === schedule.id">
+              <th scope="row">{{ dayLabel(schedule.dayOfWeek) }}</th>
+              <td>{{ schedule.startTime }}</td>
+              <td>{{ schedule.endTime }}</td>
+              <td>
+                <div class="row-actions">
+                  <button type="button" class="btn-secondary btn-small" (click)="edit(schedule)">
+                    Editar
+                  </button>
+                  <button
+                    type="button"
+                    class="btn-secondary btn-small"
+                    (click)="askToDelete(schedule)"
+                  >
+                    Eliminar
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+
+  <form
+    class="schedule-form"
+    [formGroup]="form"
+    (submit)="$event.preventDefault(); submit()"
+    novalidate
+    aria-labelledby="schedule-form-title"
+  >
+    <h3 id="schedule-form-title">
+      {{ editingId() === null ? 'Agregar un horario' : 'Editar el horario' }}
+    </h3>
+
+    @if (formError(); as message) {
+      <p class="alert" role="alert">{{ message }}</p>
+    }
+
+    <div class="row">
+      <div class="field">
+        <label for="dayOfWeek">Día</label>
+        <select id="dayOfWeek" formControlName="dayOfWeek">
+          @for (day of days; track day.value) {
+            <option [value]="day.value">{{ day.label }}</option>
+          }
+        </select>
+      </div>
+
+      @let startError = firstError(form.controls.startTime);
+      <div class="field">
+        <label for="startTime">Hora de inicio</label>
+        <input
+          id="startTime"
+          type="time"
+          formControlName="startTime"
+          [attr.aria-invalid]="startError ? 'true' : null"
+          [attr.aria-describedby]="startError ? 'startTime-error' : null"
+        />
+        @if (startError) {
+          <p class="error" id="startTime-error">{{ startError }}</p>
+        }
+      </div>
+
+      @let endError = firstError(form.controls.endTime);
+      <div class="field">
+        <label for="endTime">Hora de fin</label>
+        <input
+          id="endTime"
+          type="time"
+          formControlName="endTime"
+          [attr.aria-invalid]="endError ? 'true' : null"
+          [attr.aria-describedby]="endError ? 'endTime-error' : null"
+        />
+        @if (endError) {
+          <p class="error" id="endTime-error">{{ endError }}</p>
+        }
+      </div>
+    </div>
+
+    <div class="actions">
+      <button type="submit" [disabled]="submitting()">
+        {{
+          submitting() ? 'Guardando…' : editingId() === null ? 'Agregar horario' : 'Guardar horario'
+        }}
+      </button>
+      @if (editingId() !== null) {
+        <button type="button" class="btn-secondary" (click)="cancelEdit()">Cancelar</button>
+      }
+    </div>
+  </form>
+</section>
+
+@if (deleting(); as schedule) {
+  <app-confirm-dialog
+    title="¿Eliminar el horario?"
+    [message]="
+      formatSchedule(schedule) + '. Las sesiones que ya se crearon con este horario no se borran.'
+    "
+    confirmLabel="Sí, eliminar"
+    [danger]="true"
+    [busy]="busy()"
+    (confirmed)="confirmDelete()"
+    (dismissed)="cancelDelete()"
+  />
+}

@@ -5,6 +5,7 @@ import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { loginResponse } from '../../../testing/auth-fixtures';
 import { SessionService } from '../../Core/Auth/session.service';
 import { Role } from '../../Core/Models/role';
+import { COLLAPSE_MENU_FROM, NAV_ITEMS } from '../nav-items';
 import { AppShell } from './app-shell';
 
 describe('AppShell', () => {
@@ -65,7 +66,9 @@ describe('AppShell', () => {
 
     it('starts closed and the button points to the menu it controls', async () => {
       await setup('GUARDIAN');
-      expect(toggle().getAttribute('aria-controls')).toBe('app-nav app-logout');
+      expect(toggle().getAttribute('aria-controls')).toBe('app-menu');
+      expect(el().querySelector('#app-menu .app-nav')).toBeTruthy();
+      expect(el().querySelector('#app-menu .app-logout')).toBeTruthy();
       expect(toggle().getAttribute('aria-expanded')).toBe('false');
       expect(toggle().getAttribute('aria-label')).toBe('Abrir menú');
       expect(header().classList.contains('app-header__inner--open')).toBe(false);
@@ -107,6 +110,77 @@ describe('AppShell', () => {
       await fixture.whenStable();
 
       expect(toggle().getAttribute('aria-expanded')).toBe('false');
+    });
+
+    it('closes the menu when clicking outside of it', async () => {
+      await setup('GUARDIAN');
+      toggle().click();
+      await fixture.whenStable();
+
+      el()
+        .querySelector<HTMLElement>('.app-main')!
+        .dispatchEvent(new MouseEvent('click', { bubbles: true }));
+      await fixture.whenStable();
+
+      expect(toggle().getAttribute('aria-expanded')).toBe('false');
+    });
+
+    it('keeps the menu open when clicking inside the menu box', async () => {
+      await setup('GUARDIAN');
+      toggle().click();
+      await fixture.whenStable();
+
+      el()
+        .querySelector<HTMLElement>('.app-menu')!
+        .dispatchEvent(new MouseEvent('click', { bubbles: true }));
+      await fixture.whenStable();
+
+      expect(toggle().getAttribute('aria-expanded')).toBe('true');
+    });
+  });
+
+  describe('when the menu collapses', () => {
+    const header = (): HTMLElement => el().querySelector<HTMLElement>('.app-header__inner')!;
+    const original = window.matchMedia;
+
+    function mockScreen(narrow: boolean): void {
+      window.matchMedia = vi.fn().mockReturnValue({
+        matches: narrow,
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+      });
+    }
+
+    afterEach(() => {
+      window.matchMedia = original;
+    });
+
+    it('keeps the menu in a row on a wide screen when the role has few options', async () => {
+      mockScreen(false);
+      await setup('GUARDIAN');
+      expect(header().classList.contains('app-header__inner--compact')).toBe(false);
+    });
+
+    it('collapses the menu on a narrow screen', async () => {
+      mockScreen(true);
+      await setup('GUARDIAN');
+      expect(header().classList.contains('app-header__inner--compact')).toBe(true);
+    });
+
+    it('collapses the menu on any screen when the role has many options', async () => {
+      mockScreen(false);
+      const extra = Array.from({ length: COLLAPSE_MENU_FROM }, (_, index) => ({
+        label: `Opción ${index}`,
+        route: `/admin/extra-${index}`,
+      }));
+      const adminItems = NAV_ITEMS.ADMIN;
+      NAV_ITEMS.ADMIN = [...adminItems, ...extra];
+      try {
+        await setup('ADMIN');
+        expect(header().classList.contains('app-header__inner--compact')).toBe(true);
+      } finally {
+        NAV_ITEMS.ADMIN = adminItems;
+      }
     });
   });
 });

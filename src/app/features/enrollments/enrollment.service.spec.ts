@@ -92,4 +92,64 @@ describe('EnrollmentService', () => {
     expect(request.request.body).toEqual({});
     request.flush(enrollmentDetail({ paymentReported: true }));
   });
+
+  it('sends every administrator filter, leaving out the empty ones', () => {
+    service
+      .list({
+        page: 0,
+        size: 10,
+        status: 'ACTIVE',
+        paymentStatus: 'OVERDUE',
+        paymentReported: true,
+        period: '2026-11',
+        disciplineId: 1,
+        groupId: 11,
+        athleteId: null,
+      })
+      .subscribe();
+    const request = backend.expectOne((req) => req.url === URL);
+    const params = request.request.params;
+    expect(params.get('page')).toBe('0');
+    expect(params.get('size')).toBe('10');
+    expect(params.get('status')).toBe('ACTIVE');
+    expect(params.get('paymentStatus')).toBe('OVERDUE');
+    expect(params.get('paymentReported')).toBe('true');
+    expect(params.get('period')).toBe('2026-11');
+    expect(params.get('disciplineId')).toBe('1');
+    expect(params.get('groupId')).toBe('11');
+    expect(params.has('athleteId')).toBe(false);
+    request.flush(page([]));
+  });
+
+  it('confirms with POST /enrollments/{id}/confirm and an empty body by default', () => {
+    service.confirm(21).subscribe();
+    const request = backend.expectOne(`${URL}/21/confirm`);
+    expect(request.request.method).toBe('POST');
+    expect(request.request.body).toEqual({});
+    request.flush(enrollmentDetail({ status: 'ACTIVE' }));
+  });
+
+  it('confirms with another group and the first payment in the same request', () => {
+    const payment = { amountPaid: 120000, paymentDate: '2026-11-03' };
+    service.confirm(21, { groupId: 12, payment }).subscribe();
+    const request = backend.expectOne(`${URL}/21/confirm`);
+    expect(request.request.body).toEqual({ groupId: 12, payment });
+    request.flush(enrollmentDetail({ status: 'ACTIVE' }));
+  });
+
+  it('rejects with POST /enrollments/{id}/reject and the trimmed reason', () => {
+    service.reject(21, '  Documentos incompletos ').subscribe();
+    const request = backend.expectOne(`${URL}/21/reject`);
+    expect(request.request.method).toBe('POST');
+    expect(request.request.body).toEqual({ reason: 'Documentos incompletos' });
+    request.flush(enrollmentDetail({ status: 'REJECTED' }));
+  });
+
+  it('changes the group with PATCH /enrollments/{id}/group', () => {
+    service.changeGroup(21, 12).subscribe();
+    const request = backend.expectOne(`${URL}/21/group`);
+    expect(request.request.method).toBe('PATCH');
+    expect(request.request.body).toEqual({ groupId: 12 });
+    request.flush(enrollmentDetail());
+  });
 });

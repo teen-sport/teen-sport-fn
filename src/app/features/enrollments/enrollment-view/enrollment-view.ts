@@ -22,7 +22,7 @@ const STATUS_HELP: Record<EnrollmentDetail['status'], string> = {
 
 /**
  * Detalle de una inscripción (E8) con sus dos acciones del acudiente: cancelarla mientras está en
- * revisión (E14) y avisar que ya pagó (E16).
+ * revisión (E14) y avisar que ya pagó (E16), esto último solo cuando la inscripción está activa.
  */
 @Component({
   selector: 'app-enrollment-view',
@@ -62,6 +62,15 @@ export class EnrollmentView {
   protected readonly inForce = computed(() => {
     const current = this.enrollment();
     return !!current && IN_FORCE_STATUSES.includes(current.status);
+  });
+  /**
+   * Solo se avisa un pago cuando la academia ya confirmó la inscripción (antes no hay mensualidad que
+   * pagar) y el pago está pendiente: si ya está «al día» no hay nada que avisar. El estado de pago lo
+   * cambia el administrador a mano, así que vuelve a «pendiente» cuando él lo marca.
+   */
+  protected readonly canReportPayment = computed(() => {
+    const current = this.enrollment();
+    return current?.status === 'ACTIVE' && current.paymentStatus === 'OVERDUE';
   });
   /** El acudiente solo cancela mientras está en revisión; una activa la cancela la academia. */
   protected readonly canCancel = computed(() => this.enrollment()?.status === 'PENDING_REVIEW');
@@ -112,7 +121,7 @@ export class EnrollmentView {
   }
 
   protected reportPayment(): void {
-    if (this.busy()) {
+    if (this.busy() || !this.canReportPayment()) {
       return;
     }
     this.actionError.set(null);

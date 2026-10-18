@@ -45,6 +45,9 @@ describe('EnrollmentView', () => {
     }
   }
 
+  const active = (overrides: Partial<EnrollmentDetail> = {}): EnrollmentDetail =>
+    enrollmentDetail({ status: 'ACTIVE', paymentStatus: 'OVERDUE', ...overrides });
+
   const el = (): HTMLElement => fixture.nativeElement as HTMLElement;
   const text = (): string => el().textContent?.replace(/\s+/g, ' ') ?? '';
   const button = (label: string) =>
@@ -109,17 +112,28 @@ describe('EnrollmentView', () => {
   });
 
   describe('what can be done in each state', () => {
-    it('lets the guardian cancel and report a payment while in review', async () => {
+    it('lets the guardian cancel while in review, but not report a payment yet', async () => {
       await setup();
       expect(button('Cancelar inscripción')).toBeTruthy();
-      expect(button('Ya pagué')).toBeTruthy();
+      expect(button('Ya pagué')).toBeUndefined();
+      expect(el().querySelector('#paymentNote')).toBeNull();
+      expect(el().querySelector('.payment')?.textContent).toContain(
+        'Podrás avisar tu pago cuando la academia confirme',
+      );
     });
 
     it('does not let the guardian cancel an active enrollment and says whom to ask', async () => {
-      await setup('21', {}, enrollmentDetail({ status: 'ACTIVE', paymentStatus: 'UP_TO_DATE' }));
+      await setup('21', {}, active());
       expect(button('Cancelar inscripción')).toBeUndefined();
       expect(button('Ya pagué')).toBeTruthy();
       expect(text()).toContain('comunícate con la academia');
+    });
+
+    it('does not offer to report a payment when it is already up to date', async () => {
+      await setup('21', {}, active({ paymentStatus: 'UP_TO_DATE' }));
+      expect(button('Ya pagué')).toBeUndefined();
+      expect(el().querySelector('#paymentNote')).toBeNull();
+      expect(el().querySelector('.payment')?.textContent).toContain('Tu pago está al día');
     });
 
     it.each(['REJECTED', 'CANCELLED'] as const)(
@@ -210,7 +224,7 @@ describe('EnrollmentView', () => {
 
   describe('reporting a payment', () => {
     it('sends the note and then shows that the academy was notified', async () => {
-      await setup();
+      await setup('21', {}, active());
       const note = el().querySelector<HTMLTextAreaElement>('#paymentNote')!;
       note.value = 'Pagué en caja el lunes';
       note.dispatchEvent(new Event('input'));
@@ -220,7 +234,7 @@ describe('EnrollmentView', () => {
       const request = backend.expectOne(`${URL}/21/payment-report`);
       expect(request.request.method).toBe('POST');
       expect(request.request.body).toEqual({ notes: 'Pagué en caja el lunes' });
-      request.flush(enrollmentDetail({ paymentReported: true }));
+      request.flush(active({ paymentReported: true }));
       await fixture.whenStable();
 
       expect(el().querySelector('.notice')?.textContent).toContain('avisamos a la academia');
@@ -230,22 +244,22 @@ describe('EnrollmentView', () => {
     });
 
     it('can be sent without a note', async () => {
-      await setup();
+      await setup('21', {}, active());
       button('Ya pagué')!.click();
       await fixture.whenStable();
       const request = backend.expectOne(`${URL}/21/payment-report`);
       expect(request.request.body).toEqual({});
-      request.flush(enrollmentDetail({ paymentReported: true }));
+      request.flush(active({ paymentReported: true }));
     });
 
     it('does not offer the form when the payment was already reported', async () => {
-      await setup('21', {}, enrollmentDetail({ paymentReported: true }));
+      await setup('21', {}, active({ paymentReported: true }));
       expect(button('Ya pagué')).toBeUndefined();
       expect(el().querySelector('.payment')?.textContent).toContain('Ya avisaste que pagaste');
     });
 
     it('rejects a note longer than 255 characters without sending it', async () => {
-      await setup();
+      await setup('21', {}, active());
       const note = el().querySelector<HTMLTextAreaElement>('#paymentNote')!;
       note.value = 'x'.repeat(256);
       note.dispatchEvent(new Event('input'));
@@ -256,7 +270,7 @@ describe('EnrollmentView', () => {
     });
 
     it('explains when the academy already registered this month', async () => {
-      await setup();
+      await setup('21', {}, active());
       button('Ya pagué')!.click();
       await fixture.whenStable();
       failWith(

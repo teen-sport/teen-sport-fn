@@ -1,0 +1,14 @@
+{
+	# Railway ya entrega el sitio por HTTPS; Caddy solo debe escuchar en HTTP dentro del contenedor.
+	auto_https off
+}
+
+:{$PORT:3000} {
+	root * /srv
+	encode gzip
+
+	# Si la ruta no es un archivo (por ejemplo /admin/enrollments al recargar la página),
+	# se devuelve index.html y el enrutador de Angular muestra la pantalla que corresponde.
+	try_files {path} /index.html
+	file_server
+}

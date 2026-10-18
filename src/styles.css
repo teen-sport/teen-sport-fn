@@ -365,6 +365,11 @@ h1 {
   margin-bottom: 0;
 }
 
+/* Barra con muchos filtros: en celular caben dos por fila en vez de uno */
+.toolbar-dense .field {
+  flex-basis: 8rem;
+}
+
 /* Tabla dentro de una tarjeta; en celular se desplaza de lado en vez de romper la página */
 .table-card {
   padding: 0;
@@ -451,8 +456,31 @@ h1 {
   list-style: none;
 }
 
+/* Texto secundario bajo el dato principal de una celda (descripción, teléfono…) */
+td small.plain,
+th small.plain {
+  display: block;
+  font-weight: 400;
+  color: var(--muted);
+}
+
 /* Tarjetas apiladas en las pantallas de detalle */
 .card + .card {
+  margin-top: var(--space-3);
+}
+
+/* Los paneles del detalle de una inscripción son componentes con sus propias tarjetas: se separan
+   de la tarjeta anterior igual que dos tarjetas seguidas. */
+app-enrollment-review,
+app-enrollment-payments,
+app-enrollment-group-change {
+  display: block;
+  margin-top: var(--space-3);
+}
+
+app-enrollment-review + .card,
+app-enrollment-payments + .card,
+app-enrollment-group-change + .card {
   margin-top: var(--space-3);
 }
 
@@ -463,4 +491,44 @@ h1 {
 /* La edad y otras celdas cortas no deben partirse en dos líneas */
 .nowrap {
   white-space: nowrap;
+}
+
+/* Botones de una fila de tabla: juntos pero con espacio, y en renglones aparte si no caben. */
+.row-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+/* Formulario que va debajo de una tabla dentro de una tarjeta (horarios de un grupo). */
+.schedule-form {
+  margin-top: 1.5rem;
+}
+
+/* En el celular la tabla de horarios debe caber en la tarjeta sin desplazarse de lado. */
+@media (max-width: 42rem) {
+  .schedule-table th,
+  .schedule-table td {
+    padding: 0.6rem 0.4rem;
+  }
+
+  .schedule-table .row-actions {
+    flex-direction: column;
+  }
+}
+
+/* Casilla de verificación con su texto al lado (filtros y opciones de los formularios) */
+.check {
+  display: flex;
+  gap: var(--space-2);
+  align-items: flex-start;
+  font-weight: 400;
+}
+
+.check input {
+  flex: none;
+  width: 1.15rem;
+  height: 1.15rem;
+  margin: 0.2rem 0 0;
+  accent-color: var(--pitch);
 }

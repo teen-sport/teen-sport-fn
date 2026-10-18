@@ -1,0 +1,41 @@
+<section class="card" aria-labelledby="group-change-title">
+  <h2 id="group-change-title">Cambiar de grupo</h2>
+
+  @if (actionError(); as message) {
+    <p class="alert" role="alert">{{ message }}</p>
+  }
+
+  @if (otherGroups().length === 0) {
+    <p class="hint">No hay otros grupos activos de {{ enrollment().discipline.name }}.</p>
+  } @else {
+    <form (submit)="$event.preventDefault(); submit()" novalidate>
+      @let groupError = firstError(groupId);
+      <div class="field">
+        <label for="newGroupId">Grupo nuevo</label>
+        <select
+          id="newGroupId"
+          [formControl]="groupId"
+          [attr.aria-invalid]="groupError ? 'true' : null"
+          [attr.aria-describedby]="groupError ? 'newGroupId-error' : 'newGroupId-hint'"
+        >
+          <option value="">Elige un grupo</option>
+          @for (group of otherGroups(); track group.groupId) {
+            <option [value]="group.groupId" [disabled]="group.availableSpots <= 0">
+              {{ groupOptionLabel(group) }}
+            </option>
+          }
+        </select>
+        @if (groupError) {
+          <p class="error" id="newGroupId-error">{{ groupError }}</p>
+        } @else {
+          <p class="hint" id="newGroupId-hint">
+            Grupos activos de {{ enrollment().discipline.name }}. El mes de inicio no cambia.
+          </p>
+        }
+      </div>
+      <button type="submit" class="btn-secondary" [disabled]="busy()">
+        {{ busy() ? 'Cambiando…' : 'Cambiar de grupo' }}
+      </button>
+    </form>
+  }
+</section>
