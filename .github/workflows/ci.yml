@@ -1,0 +1,68 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+# Si llega un push nuevo a la misma rama o PR, se cancela la ejecución anterior.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  ci:
+    name: Tests y build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Descargar código
+        uses: actions/checkout@v4
+
+      - name: Configurar Node (con caché de npm)
+        uses: actions/setup-node@v4
+        with:
+          # El CLI de Angular 22 exige Node ^22.22.3 o ^24.15.0 (igual que el Dockerfile).
+          node-version: '24'
+          cache: npm
+
+      - name: 1. Instalar dependencias
+        run: npm ci
+        env:
+          NG_CLI_ANALYTICS: 'false'
+
+      - name: 2. Ejecutar pruebas unitarias
+        run: npx ng test --no-watch
+
+      - name: 3. Compilar para producción
+        run: npm run build
+
+      - name: 4. Publicar la compilación
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/teen-sport-fn/browser
+          retention-days: 7
+
+  docker:
+    name: Construir imagen Docker
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar código
+        uses: actions/checkout@v4
+
+      # Verifica que el Dockerfile que usará Railway compila, sin publicar la imagen.
+      - name: Construir imagen
+        run: docker build -t teen-sport-fn:ci .
+
+  cd:
+    name: CD
+    needs: [ci, docker]
+    # Solo despliega pushes a main (merges de PR); los pull requests nunca llegan a esta etapa.
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    uses: ./.github/workflows/cd.yml
+    secrets: inherit
