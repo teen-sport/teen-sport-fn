@@ -109,5 +109,18 @@ Pasos:
 5. Abrir la dirección del front, iniciar sesión y probar. Si el navegador muestra errores de CORS, la
    dirección del paso 4 no coincide exactamente con la del front.
 
+### CI/CD con GitHub Actions
+
+- `.github/workflows/ci.yml` (en cada PR hacia `main` y en cada push a `main`): `npm ci`, pruebas
+  (`ng test --no-watch`), `npm run build` y construcción de la imagen Docker.
+- `.github/workflows/cd.yml`: solo se ejecuta cuando el CI pasa en un push a `main` (es decir, al
+  mezclar un PR). Despliega con `railway up` y luego hace un smoke test sobre `/` y `/login`.
+- `railway.json`: le indica a Railway que construya con el `Dockerfile` y que use `/` como healthcheck.
+
+En GitHub se necesitan, en el entorno `production`, los secretos `RAILWAY_TOKEN` (token de proyecto de
+Railway) y `RAILWAY_SERVICE_ID` (ID del servicio del front), y la variable `APP_URL` (dirección pública
+del front, sin barra final). En Railway hay que desactivar el despliegue automático desde GitHub para que
+solo despliegue el pipeline.
+
 La compilación no incrusta las fuentes de Google (`fonts.inline: false` en `angular.json`), así que no
 necesita salida a internet para las fuentes; el navegador las pide al abrir la página.
