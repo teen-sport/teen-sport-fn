@@ -59,7 +59,8 @@ label {
 }
 
 input:not([type='checkbox']),
-select {
+select,
+textarea {
   width: 100%;
   padding: 0.65rem 0.75rem;
   font: inherit;
@@ -78,6 +79,10 @@ button {
   border: 2px solid var(--pitch);
   border-radius: var(--radius);
   cursor: pointer;
+}
+
+textarea {
+  resize: vertical;
 }
 
 button:hover:not(:disabled) {
@@ -149,7 +154,9 @@ a {
   color: var(--danger);
 }
 
-input[aria-invalid='true'] {
+input[aria-invalid='true'],
+select[aria-invalid='true'],
+textarea[aria-invalid='true'] {
   border-color: var(--danger);
 }
 
@@ -313,4 +320,147 @@ h1 {
 .rules li.met {
   font-weight: 600;
   color: var(--pitch);
+}
+
+/* ===== Listados del acudiente (deportistas, grupos, inscripciones, pagos) ===== */
+
+/* Pantallas de listado: bloque centrado, más ancho que las de formulario */
+.page-wide {
+  display: block;
+  max-width: 60rem;
+  margin-inline: auto;
+}
+
+.page-wide h1 {
+  margin-bottom: var(--space-4);
+  text-align: center;
+}
+
+.btn-danger {
+  background: var(--danger);
+  border-color: var(--danger);
+}
+
+.btn-danger:hover:not(:disabled) {
+  background: #8f1d17;
+  border-color: #8f1d17;
+}
+
+.btn-small {
+  padding: 0.35rem 0.85rem;
+  font-size: 0.95rem;
+}
+
+/* Barra de búsqueda o filtros sobre un listado */
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+
+.toolbar .field {
+  flex: 1 1 12rem;
+  margin-bottom: 0;
+}
+
+/* Tabla dentro de una tarjeta; en celular se desplaza de lado en vez de romper la página */
+.table-card {
+  padding: 0;
+  overflow: hidden;
+}
+
+.table-wrap {
+  /* `relative` hace que el texto oculto (.sr-only, posición absoluta) quede dentro del área que se
+     desplaza; sin esto empujaba el ancho de toda la página en el celular. */
+  position: relative;
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table th,
+.table td {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  vertical-align: middle;
+  border-bottom: 1px solid var(--line);
+}
+
+.table th {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--muted);
+  white-space: nowrap;
+  background: var(--mist);
+}
+
+.table tbody th {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--ink);
+  white-space: normal;
+  background: transparent;
+}
+
+.table tbody tr:last-child td,
+.table tbody tr:last-child th {
+  border-bottom: 0;
+}
+
+.empty-state {
+  margin: var(--space-5) 0;
+  text-align: center;
+  color: var(--muted);
+}
+
+/* Cabecera de una pantalla con un botón de acción a la derecha */
+.page-actions {
+  display: flex;
+  justify-content: center;
+  margin-bottom: var(--space-4);
+}
+
+/* Texto solo para lectores de pantalla (títulos de tabla, etiquetas ocultas) */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+.reported {
+  display: block;
+  margin-top: var(--space-1);
+  color: var(--muted);
+}
+
+/* Lista sin viñetas ni margen, para horarios dentro de una descripción */
+.plain {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Tarjetas apiladas en las pantallas de detalle */
+.card + .card {
+  margin-top: var(--space-3);
+}
+
+.text-center {
+  text-align: center;
+}
+
+/* La edad y otras celdas cortas no deben partirse en dos líneas */
+.nowrap {
+  white-space: nowrap;
 }

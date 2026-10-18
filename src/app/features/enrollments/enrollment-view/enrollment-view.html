@@ -1,0 +1,129 @@
+<h1>Inscripción</h1>
+
+@if (loading()) {
+  <p role="status">Cargando la inscripción…</p>
+} @else if (loadError(); as message) {
+  <p class="alert" role="alert">{{ message }}</p>
+  <div class="actions">
+    <button type="button" (click)="load()">Reintentar</button>
+    <a class="btn btn-secondary" routerLink="/guardian/enrollments">Volver a mis inscripciones</a>
+  </div>
+} @else if (enrollment(); as current) {
+  @if (notice(); as message) {
+    <p class="notice" role="status">{{ message }}</p>
+  }
+  @if (actionError(); as message) {
+    <p class="alert" role="alert">{{ message }}</p>
+  }
+
+  <section class="card">
+    <dl class="details">
+      <div>
+        <dt>Deportista</dt>
+        <dd>{{ current.athlete.firstNames }} {{ current.athlete.lastNames }}</dd>
+      </div>
+      <div>
+        <dt>Disciplina</dt>
+        <dd>{{ current.discipline.name }}</dd>
+      </div>
+      <div>
+        <dt>Grupo</dt>
+        <dd>{{ current.group.name }}</dd>
+      </div>
+      <div>
+        <dt>Mes de inicio</dt>
+        <dd>{{ formatPeriod(current.period) }}</dd>
+      </div>
+      <div>
+        <dt>Estado</dt>
+        <dd><app-status-badge kind="enrollment" [value]="current.status" /></dd>
+      </div>
+      @if (inForce()) {
+        <div>
+          <dt>Pago</dt>
+          <dd><app-status-badge kind="payment" [value]="current.paymentStatus" /></dd>
+        </div>
+      }
+      <div>
+        <dt>Solicitada el</dt>
+        <dd>{{ formatInstantDate(current.createdAt) }}</dd>
+      </div>
+      <div>
+        <dt>Horarios</dt>
+        <dd>
+          <ul class="plain">
+            @for (schedule of current.schedules; track schedule.id) {
+              <li>{{ formatSchedule(schedule) }}</li>
+            }
+          </ul>
+        </dd>
+      </div>
+    </dl>
+
+    <p class="status-help">{{ statusHelp[current.status] }}</p>
+
+    @if (current.reviewNotes) {
+      <p class="review-notes"><strong>Nota de la inscripción:</strong> {{ current.reviewNotes }}</p>
+    }
+  </section>
+
+  @if (inForce()) {
+    <section class="card payment">
+      <h2>Pago de la mensualidad</h2>
+      @if (current.paymentReported) {
+        <p>Ya avisaste que pagaste. La academia lo verificará y lo registrará.</p>
+      } @else {
+        <p class="hint">
+          El pago se hace en la academia. Cuando lo hagas, avísanos aquí para que lo verifiquen y lo
+          registren.
+        </p>
+        <form (submit)="$event.preventDefault(); reportPayment()" novalidate>
+          @let noteError = firstError(paymentNote);
+          <div class="field">
+            <label for="paymentNote">Nota para la academia (opcional)</label>
+            <textarea
+              id="paymentNote"
+              rows="2"
+              [formControl]="paymentNote"
+              [attr.aria-invalid]="noteError ? 'true' : null"
+              [attr.aria-describedby]="noteError ? 'paymentNote-error' : null"
+            ></textarea>
+            @if (noteError) {
+              <p class="error" id="paymentNote-error">{{ noteError }}</p>
+            }
+          </div>
+          <button type="submit" [disabled]="busy()">{{ busy() ? 'Enviando…' : 'Ya pagué' }}</button>
+        </form>
+      }
+    </section>
+  }
+
+  <div class="actions">
+    @if (canCancel()) {
+      <button type="button" class="btn-secondary" (click)="askToCancel()">
+        Cancelar inscripción
+      </button>
+    }
+    <a class="btn btn-secondary" routerLink="/guardian/enrollments">Volver a mis inscripciones</a>
+  </div>
+
+  @if (current.status === 'ACTIVE') {
+    <p class="hint text-center">
+      Para cancelar una inscripción activa, comunícate con la academia.
+    </p>
+  }
+
+  @if (confirmingCancel()) {
+    <app-confirm-dialog
+      title="¿Cancelar la inscripción?"
+      message="El cupo se libera y tendrás que solicitar una inscripción nueva si cambias de opinión."
+      confirmLabel="Sí, cancelar inscripción"
+      cancelLabel="No, volver"
+      reasonLabel="Motivo (opcional)"
+      [danger]="true"
+      [busy]="busy()"
+      (confirmed)="cancel($event)"
+      (dismissed)="closeCancel()"
+    />
+  }
+}

@@ -27,9 +27,27 @@ describe('HomeShell', () => {
     },
   );
 
-  it('says that the options will appear while there are no shortcuts yet', async () => {
-    await setup('GUARDIAN');
+  it('says that the options will appear while a role has no shortcuts yet', async () => {
+    await setup('COACH');
     expect(el().querySelector('.shortcuts')).toBeNull();
     expect(el().querySelector('.empty')?.textContent).toContain('a medida que estén disponibles');
+  });
+
+  it('shows the four shortcuts of the guardian, each one linking to its screen', async () => {
+    await setup('GUARDIAN');
+    expect(el().querySelector('.empty')).toBeNull();
+    const cards = Array.from(el().querySelectorAll<HTMLAnchorElement>('.shortcuts a.shortcut'));
+    expect(cards.map((card) => card.querySelector('strong')?.textContent)).toEqual([
+      'Mis deportistas',
+      'Grupos disponibles',
+      'Mis inscripciones',
+      'Mis pagos',
+    ]);
+    expect(cards.map((card) => card.getAttribute('href'))).toEqual([
+      '/guardian/athletes',
+      '/guardian/groups',
+      '/guardian/enrollments',
+      '/guardian/payments',
+    ]);
   });
 });

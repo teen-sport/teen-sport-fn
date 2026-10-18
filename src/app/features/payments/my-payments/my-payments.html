@@ -1,0 +1,61 @@
+<h1>Mis pagos</h1>
+
+<p class="lead">
+  Aquí aparecen los pagos que la academia registró. Si pagaste hace poco y todavía no lo ves,
+  avísalo desde el detalle de la inscripción con el botón «Ya pagué».
+</p>
+
+@if (loading()) {
+  <p role="status">Cargando tus pagos…</p>
+} @else if (loadError(); as message) {
+  <p class="alert" role="alert">{{ message }}</p>
+  <button type="button" (click)="load()">Reintentar</button>
+} @else if (result(); as current) {
+  @if (current.content.length === 0) {
+    <p class="empty-state">
+      Todavía no hay pagos registrados. Cuando la academia registre uno, lo verás aquí.
+    </p>
+    <div class="page-actions">
+      <a class="btn btn-secondary" routerLink="/guardian/enrollments">Ver mis inscripciones</a>
+    </div>
+  } @else {
+    <div class="card table-card">
+      <div class="table-wrap">
+        <table class="table">
+          <caption class="sr-only">
+            Pagos registrados
+          </caption>
+          <thead>
+            <tr>
+              <th scope="col">Mes que cubre</th>
+              <th scope="col">Deportista</th>
+              <th scope="col">Disciplina</th>
+              <th scope="col">Monto</th>
+              <th scope="col">Fecha de pago</th>
+              <th scope="col">Recibo</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (payment of current.content; track payment.id) {
+              <tr>
+                <th scope="row">{{ formatPeriod(payment.period) }}</th>
+                <td>{{ payment.athlete.firstNames }} {{ payment.athlete.lastNames }}</td>
+                <td>{{ payment.discipline.name }}</td>
+                <td>{{ formatMoney(payment.amountPaid) }}</td>
+                <td>{{ formatDate(payment.paymentDate) }}</td>
+                <td>{{ payment.receiptReference || '—' }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <app-pagination
+      [page]="current.page"
+      [totalPages]="current.totalPages"
+      [totalElements]="current.totalElements"
+      (pageChange)="goTo($event)"
+    />
+  }
+}

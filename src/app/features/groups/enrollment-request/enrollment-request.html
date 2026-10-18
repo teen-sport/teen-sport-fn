@@ -1,0 +1,52 @@
+<section class="request" aria-label="Solicitar inscripción">
+  @if (athletes().length === 0) {
+    <p class="notice">Primero registra a un deportista para poder solicitar su inscripción.</p>
+    <div class="actions">
+      <a class="btn" routerLink="/guardian/athletes/new">Registrar deportista</a>
+      <button type="button" class="btn-secondary" (click)="closed.emit()">Cerrar</button>
+    </div>
+  } @else {
+    <form (submit)="$event.preventDefault(); submit()" novalidate>
+      <p>
+        Vas a solicitar cupo en <strong>{{ group().groupName }}</strong> desde
+        <strong>{{ formatPeriod(period()) }}</strong> ({{
+          formatMoney(group().discipline.monthlyFee)
+        }}
+        al mes).
+      </p>
+
+      @if (errorMessage(); as message) {
+        <p class="alert" role="alert">{{ message }}</p>
+      }
+
+      <div class="field">
+        <label [attr.for]="selectId()">¿Para quién es la inscripción?</label>
+        <select
+          [id]="selectId()"
+          [formControl]="athleteId"
+          [attr.aria-invalid]="athleteId.touched && athleteId.invalid ? 'true' : null"
+        >
+          <option value="">Elige un deportista</option>
+          @for (athlete of athletes(); track athlete.id) {
+            <option [value]="athlete.id">{{ athlete.firstNames }} {{ athlete.lastNames }}</option>
+          }
+        </select>
+        @if (athleteId.touched && athleteId.invalid) {
+          <p class="error">Elige a quién vas a inscribir.</p>
+        }
+      </div>
+
+      <p class="hint">
+        Tu solicitud queda en revisión hasta que la academia la confirme. Mientras tanto reserva un
+        cupo.
+      </p>
+
+      <div class="actions">
+        <button type="submit" [disabled]="submitting()">
+          {{ submitting() ? 'Enviando…' : 'Enviar solicitud' }}
+        </button>
+        <button type="button" class="btn-secondary" (click)="closed.emit()">Cancelar</button>
+      </div>
+    </form>
+  }
+</section>

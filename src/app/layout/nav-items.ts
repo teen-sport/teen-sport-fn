@@ -21,7 +21,14 @@ const PROFILE_NAV: NavItem = { label: 'Mi perfil', route: '/profile' };
 export const NAV_ITEMS: Record<Role, NavItem[]> = {
   ADMIN: [{ label: 'Inicio', route: '/admin', exact: true }, PROFILE_NAV],
   COACH: [{ label: 'Inicio', route: '/coach', exact: true }, PROFILE_NAV],
-  GUARDIAN: [{ label: 'Inicio', route: '/guardian', exact: true }, PROFILE_NAV],
+  GUARDIAN: [
+    { label: 'Inicio', route: '/guardian', exact: true },
+    { label: 'Mis deportistas', route: '/guardian/athletes' },
+    { label: 'Grupos disponibles', route: '/guardian/groups' },
+    { label: 'Mis inscripciones', route: '/guardian/enrollments' },
+    { label: 'Mis pagos', route: '/guardian/payments' },
+    PROFILE_NAV,
+  ],
 };
 
 /**
@@ -31,5 +38,26 @@ export const NAV_ITEMS: Record<Role, NavItem[]> = {
 export const SHORTCUTS: Record<Role, Shortcut[]> = {
   ADMIN: [],
   COACH: [],
-  GUARDIAN: [],
+  GUARDIAN: [
+    {
+      title: 'Mis deportistas',
+      description: 'Registra y edita los datos de tus deportistas.',
+      route: '/guardian/athletes',
+    },
+    {
+      title: 'Grupos disponibles',
+      description: 'Mira horarios y cupos, y solicita una inscripción.',
+      route: '/guardian/groups',
+    },
+    {
+      title: 'Mis inscripciones',
+      description: 'Consulta el estado de cada inscripción y avisa tus pagos.',
+      route: '/guardian/enrollments',
+    },
+    {
+      title: 'Mis pagos',
+      description: 'Revisa el historial de pagos registrados por la academia.',
+      route: '/guardian/payments',
+    },
+  ],
 };

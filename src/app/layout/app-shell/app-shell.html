@@ -1,32 +1,45 @@
 <a class="skip-link" href="#content">Saltar al contenido</a>
 
 <header class="app-header">
-  <div class="app-header__inner">
+  <div class="app-header__inner" [class.app-header__inner--open]="menuOpen()">
     <a class="app-brand" [routerLink]="homeLink()">
       <img class="app-brand__logo" src="logo.png" alt="" width="48" height="48" />
       <span>TeenSport</span>
     </a>
 
-    <nav class="app-nav" aria-label="Principal">
+    <nav id="app-nav" class="app-nav" aria-label="Principal">
       @for (item of items(); track item.route) {
-      <a
-        [routerLink]="item.route"
-        routerLinkActive="active"
-        [routerLinkActiveOptions]="{ exact: item.exact ?? false }"
-        >{{ item.label }}</a
-      >
+        <a
+          [routerLink]="item.route"
+          routerLinkActive="active"
+          [routerLinkActiveOptions]="{ exact: item.exact ?? false }"
+          (click)="closeMenu()"
+          >{{ item.label }}</a
+        >
       }
     </nav>
 
-    <div class="app-user">
-      @if (user(); as current) {
-      <a class="app-user__name" routerLink="/profile">
+    @if (user(); as current) {
+      <a class="app-user__name" routerLink="/profile" (click)="closeMenu()">
         <span>{{ current.firstNames }} {{ current.lastNames }}</span>
         <small>{{ roleLabel() }}</small>
       </a>
-      }
-      <button type="button" class="btn-secondary" (click)="logout()">Cerrar sesión</button>
-    </div>
+    }
+
+    <button
+      type="button"
+      class="app-menu-toggle"
+      aria-controls="app-nav app-logout"
+      [attr.aria-expanded]="menuOpen()"
+      [attr.aria-label]="menuOpen() ? 'Cerrar menú' : 'Abrir menú'"
+      (click)="toggleMenu()"
+    >
+      <span class="app-menu-toggle__bars" aria-hidden="true"></span>
+    </button>
+
+    <button id="app-logout" type="button" class="btn-secondary app-logout" (click)="logout()">
+      Cerrar sesión
+    </button>
   </div>
 </header>
 

@@ -24,6 +24,9 @@ export function firstError(control: AbstractControl | null): string | null {
   if (errors['integer']) {
     return 'Escribe un número entero.';
   }
+  if (errors['futuredate']) {
+    return 'La fecha no puede ser posterior a hoy.';
+  }
   if (errors['maxbytes']) {
     return 'La contraseña es demasiado larga.';
   }

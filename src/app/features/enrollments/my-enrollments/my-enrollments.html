@@ -1,0 +1,91 @@
+<h1>Mis inscripciones</h1>
+
+<div class="page-actions">
+  <a class="btn" routerLink="/guardian/groups">Buscar un grupo</a>
+</div>
+
+<div class="toolbar">
+  <div class="field">
+    <label for="status">Estado</label>
+    <select id="status" [formControl]="status">
+      <option value="">Todas</option>
+      @for (option of statusOptions; track option.value) {
+        <option [value]="option.value">{{ option.label }}</option>
+      }
+    </select>
+  </div>
+</div>
+
+@if (loading()) {
+  <p role="status">Cargando tus inscripciones…</p>
+} @else if (loadError(); as message) {
+  <p class="alert" role="alert">{{ message }}</p>
+  <button type="button" (click)="load()">Reintentar</button>
+} @else if (result(); as current) {
+  @if (current.content.length === 0) {
+    <p class="empty-state">
+      @if (status.value) {
+        No tienes inscripciones con ese estado.
+      } @else {
+        Todavía no tienes inscripciones. Busca un grupo en «Buscar un grupo» para solicitar la
+        primera.
+      }
+    </p>
+  } @else {
+    <div class="card table-card">
+      <div class="table-wrap">
+        <table class="table">
+          <caption class="sr-only">
+            Inscripciones de tus deportistas
+          </caption>
+          <thead>
+            <tr>
+              <th scope="col">Deportista</th>
+              <th scope="col">Disciplina y grupo</th>
+              <th scope="col">Mes de inicio</th>
+              <th scope="col">Estado</th>
+              <th scope="col">Pago</th>
+              <th scope="col"><span class="sr-only">Acciones</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (enrollment of current.content; track enrollment.id) {
+              <tr>
+                <th scope="row">
+                  {{ enrollment.athlete.firstNames }} {{ enrollment.athlete.lastNames }}
+                </th>
+                <td>{{ enrollment.discipline.name }} · {{ enrollment.group.name }}</td>
+                <td>{{ formatPeriod(enrollment.period) }}</td>
+                <td><app-status-badge kind="enrollment" [value]="enrollment.status" /></td>
+                <td>
+                  @if (isInForce(enrollment)) {
+                    <app-status-badge kind="payment" [value]="enrollment.paymentStatus" />
+                    @if (enrollment.paymentReported) {
+                      <small class="reported">Pago avisado</small>
+                    }
+                  } @else {
+                    —
+                  }
+                </td>
+                <td>
+                  <a
+                    class="btn btn-secondary btn-small"
+                    [routerLink]="['/guardian/enrollments', enrollment.id]"
+                    >Ver detalle</a
+                  >
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <app-pagination
+      [page]="current.page"
+      [totalPages]="current.totalPages"
+      [totalElements]="current.totalElements"
+      (pageChange)="goTo($event)"
+    />
+  }
+}

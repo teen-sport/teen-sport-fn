@@ -1,4 +1,5 @@
 import { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
+import { todayInAcademy } from './format';
 
 const UPPERCASE = /\p{Lu}/u;
 const LOWERCASE = /\p{Ll}/u;
@@ -62,4 +63,15 @@ export const notBlank: ValidatorFn = (control) =>
 export const integer: ValidatorFn = (control) => {
   const value = control.value;
   return value === null || value === '' || Number.isInteger(value) ? null : { integer: true };
+};
+
+/**
+ * Una fecha «YYYY-MM-DD» que no sea posterior a hoy (según la zona de la academia). Un campo vacío se
+ * acepta; para exigirlo usa `required`. Las fechas con este formato se comparan como texto.
+ */
+export const notFutureDate: ValidatorFn = (control) => {
+  const value = control.value;
+  return typeof value === 'string' && value !== '' && value > todayInAcademy()
+    ? { futuredate: true }
+    : null;
 };

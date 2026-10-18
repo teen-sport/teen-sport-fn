@@ -1,0 +1,15 @@
+.request {
+  margin-top: var(--space-3);
+  padding: var(--space-3);
+  background: var(--mist);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+
+.request p {
+  margin-top: 0;
+}
+
+.actions {
+  margin-top: var(--space-3);
+}

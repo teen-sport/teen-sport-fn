@@ -1,0 +1,110 @@
+<h1>Grupos disponibles</h1>
+
+@if (setupLoading()) {
+  <p role="status">Cargando…</p>
+} @else if (setupError(); as message) {
+  <p class="alert" role="alert">{{ message }}</p>
+  <button type="button" (click)="loadSetup()">Reintentar</button>
+} @else {
+  <p class="lead">
+    Elige el mes en que quieres empezar y la disciplina. Luego solicita la inscripción en el grupo
+    que prefieras.
+  </p>
+
+  <form class="toolbar" [formGroup]="filters">
+    <div class="field">
+      <label for="period">Mes de inicio</label>
+      <select id="period" formControlName="period">
+        @for (option of periods; track option.value) {
+          <option [value]="option.value">{{ option.label }}</option>
+        }
+      </select>
+    </div>
+    <div class="field">
+      <label for="disciplineId">Disciplina</label>
+      <select id="disciplineId" formControlName="disciplineId">
+        <option value="">Todas</option>
+        @for (discipline of disciplines(); track discipline.id) {
+          <option [value]="discipline.id">{{ discipline.name }}</option>
+        }
+      </select>
+    </div>
+  </form>
+
+  @if (groupsLoading()) {
+    <p role="status">Buscando grupos…</p>
+  } @else if (groupsError(); as message) {
+    <p class="alert" role="alert">{{ message }}</p>
+    <button type="button" (click)="loadGroups()">Reintentar</button>
+  } @else if (groups().length === 0) {
+    <p class="empty-state">
+      No hay grupos disponibles con esos filtros. Prueba con otro mes o disciplina.
+    </p>
+  } @else {
+    <ul class="groups">
+      @for (group of groups(); track group.groupId) {
+        <li>
+          <article class="card group" [attr.aria-labelledby]="'group-' + group.groupId">
+            <header class="group__header">
+              <h2 [id]="'group-' + group.groupId">{{ group.groupName }}</h2>
+              <span class="group__discipline">{{ group.discipline.name }}</span>
+            </header>
+
+            <dl class="details">
+              <div>
+                <dt>Mensualidad</dt>
+                <dd>{{ formatMoney(group.discipline.monthlyFee) }}</dd>
+              </div>
+              <div>
+                <dt>Entrenador</dt>
+                <dd>{{ group.coach.fullName }}</dd>
+              </div>
+              <div>
+                <dt>Cupos</dt>
+                <dd class="spots" [class.spots--none]="group.availableSpots === 0">
+                  @if (group.availableSpots === 0) {
+                    Sin cupos disponibles
+                  } @else {
+                    {{ group.availableSpots }} de {{ group.maxCapacity }} disponibles
+                  }
+                </dd>
+              </div>
+              <div>
+                <dt>Horarios</dt>
+                <dd>
+                  <ul class="schedules">
+                    @for (schedule of group.schedules; track schedule.id) {
+                      <li>{{ formatSchedule(schedule) }}</li>
+                    }
+                  </ul>
+                </dd>
+              </div>
+            </dl>
+
+            <div class="actions">
+              <button
+                type="button"
+                [disabled]="group.availableSpots === 0"
+                [attr.aria-expanded]="openGroupId() === group.groupId"
+                (click)="toggleRequest(group.groupId)"
+              >
+                Solicitar inscripción
+              </button>
+            </div>
+
+            @if (openGroupId() === group.groupId) {
+              <app-enrollment-request
+                [group]="group"
+                [period]="filters.controls.period.value"
+                [athletes]="athletes()"
+                (requested)="onRequested($event)"
+                (closed)="closeRequest()"
+                (spotsChanged)="loadGroups(true)"
+              />
+            }
+          </article>
+        </li>
+      }
+    </ul>
+  }
+}
