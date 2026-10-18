@@ -1,0 +1,72 @@
+h1 {
+  margin: 0 0 var(--space-4);
+  text-align: center;
+}
+
+.home {
+  max-width: 60rem;
+  margin-inline: auto;
+}
+
+/* Accesos rápidos: dos columnas en pantallas anchas, una en celular */
+.shortcuts {
+  display: grid;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+@media (min-width: 42rem) {
+  .shortcuts {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.shortcut {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  height: 100%;
+  min-height: 8rem;
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.shortcut strong {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--pitch);
+}
+
+.shortcut span {
+  color: var(--muted);
+  font-weight: 400;
+}
+
+.shortcut .shortcut__go {
+  margin-top: auto;
+  font-weight: 700;
+  color: var(--pitch);
+}
+
+.shortcut:hover {
+  border-color: var(--pitch);
+  transform: translateY(-2px);
+}
+
+.empty,
+.profile-hint {
+  text-align: center;
+  color: var(--muted);
+}
+
+.empty {
+  margin: var(--space-5) 0;
+}
+
+.profile-hint {
+  margin: var(--space-4) 0 0;
+}

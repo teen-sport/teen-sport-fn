@@ -1,1 +1,316 @@
-/* You can add global styles to this file, and also import other style files */
+:root {
+  /* Identidad TeenSport */
+  --ink: #0f2a1c;
+  --pitch: #1a7f37;
+  --pitch-dark: #14672d;
+  --signal: #ffd23f;
+
+  /* Neutros y estados */
+  --paper: #ffffff;
+  --mist: #f1f7f3;
+  --line: #cdddd3;
+  --muted: #4f6357;
+  --danger: #b3261e;
+
+  /* Tipografía */
+  --font-body: 'Barlow', system-ui, sans-serif;
+  --font-display: 'Barlow Condensed', 'Barlow', system-ui, sans-serif;
+
+  /* Espaciado y forma */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 1rem;
+  --space-4: 1.5rem;
+  --space-5: 2rem;
+  --radius: 0.5rem;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: var(--font-body);
+  font-size: 1rem;
+  line-height: 1.5;
+  color: var(--ink);
+  background: var(--mist);
+}
+
+h1,
+h2,
+h3 {
+  margin: 0 0 var(--space-3);
+  font-family: var(--font-display);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+label {
+  display: block;
+  margin-bottom: var(--space-1);
+  font-weight: 600;
+}
+
+input:not([type='checkbox']),
+select {
+  width: 100%;
+  padding: 0.65rem 0.75rem;
+  font: inherit;
+  color: inherit;
+  background: var(--paper);
+  border: 1.5px solid var(--line);
+  border-radius: var(--radius);
+}
+
+button {
+  padding: 0.7rem 1.25rem;
+  font: inherit;
+  font-weight: 700;
+  color: var(--paper);
+  background: var(--pitch);
+  border: 2px solid var(--pitch);
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+
+button:hover:not(:disabled) {
+  background: var(--pitch-dark);
+  border-color: var(--pitch-dark);
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+a {
+  font-weight: 600;
+  color: var(--pitch);
+}
+
+:focus-visible {
+  outline: 3px solid var(--pitch);
+  outline-offset: 2px;
+}
+/* ===== Pantallas de autenticación (login y registro) ===== */
+
+.auth {
+  display: grid;
+  place-items: center;
+  min-height: 100vh;
+  padding: var(--space-4) var(--space-3);
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 26rem;
+  padding: var(--space-5);
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: calc(var(--radius) * 2);
+  box-shadow: 0 8px 24px rgb(15 42 28 / 8%);
+}
+
+.auth-card header {
+  text-align: center;
+}
+
+.auth-logo {
+  display: block;
+  width: 6rem;
+  height: 6rem;
+  margin: 0 auto var(--space-2);
+}
+
+.brand {
+  margin: 0 0 var(--space-1);
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--pitch);
+}
+
+.field {
+  margin-bottom: var(--space-3);
+}
+
+.error {
+  margin: var(--space-1) 0 0;
+  font-size: 0.9rem;
+  color: var(--danger);
+}
+
+input[aria-invalid='true'] {
+  border-color: var(--danger);
+}
+
+.alert,
+.notice {
+  margin: 0 0 var(--space-3);
+  padding: 0.75rem 1rem;
+  font-size: 0.95rem;
+  border-radius: var(--radius);
+}
+
+.alert {
+  color: var(--danger);
+  background: #fdecea;
+  border: 1px solid #f3b8b3;
+}
+
+.notice {
+  color: var(--ink);
+  background: #e6f4ea;
+  border: 1px solid #b7dcc2;
+}
+
+.submit {
+  width: 100%;
+  margin-top: var(--space-2);
+}
+
+.alt {
+  margin: var(--space-4) 0 0;
+  text-align: center;
+  color: var(--muted);
+}
+
+/* ===== Pantallas internas (con sesión) ===== */
+
+h1 {
+  font-size: 2rem;
+}
+
+.lead {
+  margin: 0 0 var(--space-4);
+  color: var(--muted);
+}
+
+.card {
+  padding: var(--space-4);
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: calc(var(--radius) * 2);
+  box-shadow: 0 4px 16px rgb(15 42 28 / 6%);
+}
+
+.form-card {
+  max-width: 40rem;
+}
+
+/* Pantallas de contenido angosto (perfil): bloque centrado en la página */
+.page-narrow {
+  display: block;
+  max-width: 44rem;
+  margin-inline: auto;
+}
+
+.page-narrow h1 {
+  margin-bottom: var(--space-4);
+  text-align: center;
+}
+
+.page-narrow .actions {
+  justify-content: center;
+}
+
+.hint {
+  margin: 0 0 var(--space-3);
+  color: var(--muted);
+}
+
+/* Enlaces con aspecto de botón */
+.btn {
+  display: inline-block;
+  padding: 0.7rem 1.25rem;
+  font-weight: 700;
+  line-height: 1.5;
+  color: var(--paper);
+  text-align: center;
+  text-decoration: none;
+  background: var(--pitch);
+  border: 2px solid var(--pitch);
+  border-radius: var(--radius);
+}
+
+.btn:hover {
+  background: var(--pitch-dark);
+  border-color: var(--pitch-dark);
+}
+
+.btn-secondary {
+  color: var(--pitch);
+  background: transparent;
+}
+
+.btn-secondary:hover:not(:disabled) {
+  color: var(--paper);
+  background: var(--pitch);
+  border-color: var(--pitch);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+}
+
+/* Lista de datos "etiqueta: valor" */
+.details {
+  display: grid;
+  gap: var(--space-3);
+  margin: 0;
+}
+
+.details dt {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.details dd {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+@media (min-width: 42rem) {
+  .details {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* Formularios de dos columnas */
+.row {
+  display: grid;
+  column-gap: var(--space-3);
+}
+
+@media (min-width: 42rem) {
+  .row {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* Requisitos de contraseña */
+.rules {
+  margin: var(--space-2) 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.rules li.met {
+  font-weight: 600;
+  color: var(--pitch);
+}

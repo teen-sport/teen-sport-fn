@@ -1,0 +1,62 @@
+<h1>Mi perfil</h1>
+
+@if (notice) {
+<p class="notice" role="status">{{ notice }}</p>
+}
+
+@if (loading()) {
+<p role="status">Cargando tu perfil…</p>
+} @else if (loadError(); as message) {
+<p class="alert" role="alert">{{ message }}</p>
+<button type="button" (click)="load()">Reintentar</button>
+} @else if (profile(); as current) {
+<section class="card">
+  <dl class="details">
+    <div>
+      <dt>Nombre</dt>
+      <dd>{{ current.firstNames }} {{ current.lastNames }}</dd>
+    </div>
+    <div>
+      <dt>Documento</dt>
+      <dd>{{ idTypeLabel(current.idType) }} {{ current.idNumber }}</dd>
+    </div>
+    <div>
+      <dt>Correo</dt>
+      <dd>{{ current.email }}</dd>
+    </div>
+    <div>
+      <dt>Teléfono</dt>
+      <dd>{{ current.phone }}</dd>
+    </div>
+    <div>
+      <dt>Rol</dt>
+      <dd>{{ roleLabels[current.role] }}</dd>
+    </div>
+    <div>
+      <dt>Estado</dt>
+      <dd>{{ current.status === 'ACTIVE' ? 'Activo' : 'Inactivo' }}</dd>
+    </div>
+
+    @if (current.guardian) {
+    <div>
+      <dt>Dirección</dt>
+      <dd>{{ current.guardian.homeAddress || '—' }}</dd>
+    </div>
+    } @if (current.coach) {
+    <div>
+      <dt>Especialidad</dt>
+      <dd>{{ current.coach.specialty || '—' }}</dd>
+    </div>
+    <div>
+      <dt>Años de experiencia</dt>
+      <dd>{{ current.coach.yearsOfExperience ?? '—' }}</dd>
+    </div>
+    }
+  </dl>
+</section>
+
+<div class="actions">
+  <a class="btn" routerLink="/profile/edit">Editar perfil</a>
+  <a class="btn btn-secondary" routerLink="/profile/password">Cambiar contraseña</a>
+</div>
+}

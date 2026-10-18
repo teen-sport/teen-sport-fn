@@ -1,0 +1,42 @@
+.auth-card.wide {
+  max-width: 40rem;
+}
+
+.row {
+  display: grid;
+  column-gap: var(--space-3);
+}
+
+@media (min-width: 42rem) {
+  .row {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.rules {
+  margin: var(--space-2) 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.rules li.met {
+  font-weight: 600;
+  color: var(--pitch);
+}
+
+.consent {
+  display: flex;
+  gap: var(--space-2);
+  align-items: flex-start;
+  font-weight: 400;
+}
+
+.consent input {
+  flex: none;
+  width: 1.15rem;
+  height: 1.15rem;
+  margin: 0.2rem 0 0;
+  accent-color: var(--pitch);
+}

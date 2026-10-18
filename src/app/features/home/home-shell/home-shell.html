@@ -1,0 +1,23 @@
+<div class="home">
+  <h1>Inicio</h1>
+
+  @if (shortcuts().length) {
+  <ul class="shortcuts">
+    @for (shortcut of shortcuts(); track shortcut.route) {
+    <li>
+      <a class="card shortcut" [routerLink]="shortcut.route">
+        <strong>{{ shortcut.title }}</strong>
+        <span>{{ shortcut.description }}</span>
+        <span class="shortcut__go" aria-hidden="true">Ir →</span>
+      </a>
+    </li>
+    }
+  </ul>
+  } @else {
+  <p class="empty">Aquí aparecerán tus opciones a medida que estén disponibles.</p>
+  }
+
+  <p class="profile-hint">
+    Tus datos y tu contraseña están en <a href="/profile" routerLink="/profile">Mi perfil</a>.
+  </p>
+</div>

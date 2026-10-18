@@ -1,0 +1,125 @@
+<h1>Editar perfil</h1>
+
+@if (loading()) {
+<p role="status">Cargando tus datos…</p>
+} @else if (loadError(); as message) {
+<p class="alert" role="alert">{{ message }}</p>
+<button type="button" (click)="load()">Reintentar</button>
+} @else {
+<section class="card form-card">
+  <p class="hint">El correo, el documento y el rol no se pueden cambiar desde aquí.</p>
+
+  <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+    @if (formError(); as message) {
+    <p class="alert" role="alert">{{ message }}</p>
+    }
+
+    <div class="row">
+      @let firstNamesError = firstError(form.controls.firstNames);
+      <div class="field">
+        <label for="firstNames">Nombres</label>
+        <input
+          id="firstNames"
+          type="text"
+          formControlName="firstNames"
+          autocomplete="given-name"
+          [attr.aria-invalid]="firstNamesError ? 'true' : null"
+          [attr.aria-describedby]="firstNamesError ? 'firstNames-error' : null"
+        />
+        @if (firstNamesError) {
+        <p class="error" id="firstNames-error">{{ firstNamesError }}</p>
+        }
+      </div>
+
+      @let lastNamesError = firstError(form.controls.lastNames);
+      <div class="field">
+        <label for="lastNames">Apellidos</label>
+        <input
+          id="lastNames"
+          type="text"
+          formControlName="lastNames"
+          autocomplete="family-name"
+          [attr.aria-invalid]="lastNamesError ? 'true' : null"
+          [attr.aria-describedby]="lastNamesError ? 'lastNames-error' : null"
+        />
+        @if (lastNamesError) {
+        <p class="error" id="lastNames-error">{{ lastNamesError }}</p>
+        }
+      </div>
+    </div>
+
+    @let phoneError = firstError(form.controls.phone);
+    <div class="field">
+      <label for="phone">Teléfono</label>
+      <input
+        id="phone"
+        type="tel"
+        formControlName="phone"
+        autocomplete="tel"
+        [attr.aria-invalid]="phoneError ? 'true' : null"
+        [attr.aria-describedby]="phoneError ? 'phone-error' : null"
+      />
+      @if (phoneError) {
+      <p class="error" id="phone-error">{{ phoneError }}</p>
+      }
+    </div>
+
+    @if (isGuardian()) { @let addressError = firstError(form.controls.homeAddress);
+    <div class="field">
+      <label for="homeAddress">Dirección</label>
+      <input
+        id="homeAddress"
+        type="text"
+        formControlName="homeAddress"
+        autocomplete="street-address"
+        [attr.aria-invalid]="addressError ? 'true' : null"
+        [attr.aria-describedby]="addressError ? 'homeAddress-error' : null"
+      />
+      @if (addressError) {
+      <p class="error" id="homeAddress-error">{{ addressError }}</p>
+      }
+    </div>
+    } @if (isCoach()) {
+    <div class="row">
+      @let specialtyError = firstError(form.controls.specialty);
+      <div class="field">
+        <label for="specialty">Especialidad</label>
+        <input
+          id="specialty"
+          type="text"
+          formControlName="specialty"
+          [attr.aria-invalid]="specialtyError ? 'true' : null"
+          [attr.aria-describedby]="specialtyError ? 'specialty-error' : null"
+        />
+        @if (specialtyError) {
+        <p class="error" id="specialty-error">{{ specialtyError }}</p>
+        }
+      </div>
+
+      @let yearsError = firstError(form.controls.yearsOfExperience);
+      <div class="field">
+        <label for="yearsOfExperience">Años de experiencia</label>
+        <input
+          id="yearsOfExperience"
+          type="number"
+          min="0"
+          formControlName="yearsOfExperience"
+          [attr.aria-invalid]="yearsError ? 'true' : null"
+          [attr.aria-describedby]="yearsError ? 'yearsOfExperience-error' : null"
+        />
+        @if (yearsError) {
+        <p class="error" id="yearsOfExperience-error">{{ yearsError }}</p>
+        }
+      </div>
+    </div>
+    }
+
+    <div class="actions">
+      <button type="submit" [disabled]="submitting()">
+        {{ submitting() ? 'Guardando…' : 'Guardar cambios' }}
+      </button>
+      <a class="btn btn-secondary" routerLink="/profile">Cancelar</a>
+    </div>
+  </form>
+</section>
+}
