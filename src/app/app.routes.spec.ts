@@ -82,6 +82,7 @@ describe('routes of the guardian and the administrator', () => {
     ['/admin', 'app-home-shell'],
     ['/admin/disciplines/new', 'app-discipline-form'],
     ['/admin/coaches/new', 'app-coach-form'],
+    ['/admin/users/new', 'app-admin-form'],
   ])('resolves %s to its screen for the administrator', async (url, selector) => {
     const harness = await setup('ADMIN');
     await harness.navigateByUrl(url);
@@ -119,6 +120,28 @@ describe('routes of the guardian and the administrator', () => {
     expect((harness.routeNativeElement as HTMLElement).querySelector(selector)).toBeTruthy();
     expect(TestBed.inject(Router).url).toBe(url);
   });
+
+  it('opens the list of users and asks the API for every role', async () => {
+    const harness = await setup('ADMIN');
+    await harness.navigateByUrl('/admin/users');
+    const request = backend.expectOne((req) => req.url === `${environment.apiBaseUrl}/users`);
+    expect(request.request.params.has('role')).toBe(false);
+    request.flush(page([]));
+    await harness.fixture.whenStable();
+    expect((harness.routeNativeElement as HTMLElement).querySelector('app-user-list')).toBeTruthy();
+    expect(
+      (harness.routeNativeElement as HTMLElement).querySelector('.app-nav a[href="/admin/users"]'),
+    ).toBeTruthy();
+  });
+
+  it.each(['COACH', 'GUARDIAN'] as const)(
+    'does not let a %s into the users of the administrator',
+    async (role) => {
+      const harness = await setup(role);
+      await harness.navigateByUrl('/admin/users/new');
+      expect(TestBed.inject(Router).url).toBe(role === 'COACH' ? '/coach' : '/guardian');
+    },
+  );
 
   it('opens the detail of an enrollment', async () => {
     const harness = await setup('ADMIN');

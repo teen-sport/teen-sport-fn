@@ -80,4 +80,19 @@ export const ADMIN_ROUTES: Routes = [
     loadComponent: () =>
       import('../payments/admin-payment-list/admin-payment-list').then((m) => m.AdminPaymentList),
   },
+  {
+    path: 'users',
+    title: 'Usuarios | TeenSport',
+    loadComponent: () => import('../users/user-list/user-list').then((m) => m.UserList),
+  },
+  {
+    path: 'users/new',
+    title: 'Nuevo administrador | TeenSport',
+    loadComponent: () => import('../users/admin-form/admin-form').then((m) => m.AdminForm),
+  },
+  {
+    path: 'users/:id/edit',
+    title: 'Editar administrador | TeenSport',
+    loadComponent: () => import('../users/admin-form/admin-form').then((m) => m.AdminForm),
+  },
 ];

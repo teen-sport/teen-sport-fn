@@ -1,0 +1,140 @@
+<h1>Usuarios</h1>
+
+@if (notice(); as message) {
+  <p class="notice" role="status">{{ message }}</p>
+}
+@if (actionError(); as message) {
+  <p class="alert" role="alert">{{ message }}</p>
+}
+
+<div class="page-actions">
+  <a class="btn" routerLink="/admin/users/new">Nuevo administrador</a>
+</div>
+
+<form class="toolbar" role="search" (submit)="$event.preventDefault(); applySearch()">
+  <div class="field">
+    <label for="search">Buscar por nombre, correo o documento</label>
+    <input id="search" type="search" [formControl]="search" autocomplete="off" />
+  </div>
+  <div class="field">
+    <label for="role">Rol</label>
+    <select id="role" [formControl]="role">
+      <option value="">Todos</option>
+      <option value="ADMIN">Administradores</option>
+      <option value="COACH">Entrenadores</option>
+      <option value="GUARDIAN">Acudientes</option>
+    </select>
+  </div>
+  <div class="field">
+    <label for="status">Estado</label>
+    <select id="status" [formControl]="status">
+      <option value="">Todos</option>
+      <option value="ACTIVE">Activos</option>
+      <option value="INACTIVE">Inactivos</option>
+    </select>
+  </div>
+  <button type="submit">Buscar</button>
+  @if (search.value || role.value || status.value) {
+    <button type="button" class="btn-secondary" (click)="clearFilters()">Limpiar</button>
+  }
+</form>
+
+@if (loading()) {
+  <p role="status">Cargando usuarios…</p>
+} @else if (loadError(); as message) {
+  <p class="alert" role="alert">{{ message }}</p>
+  <button type="button" (click)="load()">Reintentar</button>
+} @else if (result(); as current) {
+  @if (current.content.length === 0) {
+    <p class="empty-state">
+      @if (filtering) {
+        No encontramos usuarios con esos filtros.
+      } @else {
+        Todavía no hay usuarios registrados.
+      }
+    </p>
+  } @else {
+    <div class="card table-card">
+      <div class="table-wrap">
+        <table class="table">
+          <caption class="sr-only">
+            Cuentas de la academia
+          </caption>
+          <thead>
+            <tr>
+              <th scope="col">Nombre</th>
+              <th scope="col">Rol</th>
+              <th scope="col">Documento</th>
+              <th scope="col">Contacto</th>
+              <th scope="col">Estado</th>
+              <th scope="col"><span class="sr-only">Acciones</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (user of current.content; track user.id) {
+              <tr>
+                <th scope="row">{{ fullName(user) }}</th>
+                <td>{{ roleLabels[user.role] }}</td>
+                <td>{{ idTypeLabel(user.idType) }} {{ user.idNumber }}</td>
+                <td>
+                  {{ user.email }}
+                  <small class="plain">{{ user.phone }}</small>
+                </td>
+                <td><app-status-badge kind="entity" [value]="user.status" /></td>
+                <td class="nowrap">
+                  @if (editLink(user); as link) {
+                    <a class="btn btn-secondary btn-small" [routerLink]="link">Editar</a>
+                  }
+                  @if (isOwn(user)) {
+                    <small class="plain">Tu cuenta</small>
+                  } @else if (user.status === 'ACTIVE') {
+                    <button
+                      type="button"
+                      class="btn-secondary btn-small"
+                      (click)="askToDeactivate(user)"
+                    >
+                      Desactivar
+                    </button>
+                  } @else {
+                    <button
+                      type="button"
+                      class="btn-secondary btn-small"
+                      [disabled]="busy()"
+                      (click)="activate(user)"
+                    >
+                      Activar
+                    </button>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <app-pagination
+      [page]="current.page"
+      [totalPages]="current.totalPages"
+      [totalElements]="current.totalElements"
+      (pageChange)="goTo($event)"
+    />
+  }
+}
+
+@if (deactivating(); as user) {
+  <app-confirm-dialog
+    title="¿Desactivar la cuenta?"
+    [message]="
+      fullName(user) +
+      ' (' +
+      roleLabels[user.role] +
+      ') ya no podrá iniciar sesión. Si tiene una sesión abierta, esta puede seguir funcionando hasta que venza, máximo una hora.'
+    "
+    confirmLabel="Sí, desactivar"
+    [danger]="true"
+    [busy]="busy()"
+    (confirmed)="confirmDeactivate()"
+    (dismissed)="cancelDeactivate()"
+  />
+}

@@ -68,6 +68,7 @@ describe('HomeShell', () => {
       '/admin/groups',
       '/admin/enrollments',
       '/admin/payments',
+      '/admin/users',
     ]);
   });
 });

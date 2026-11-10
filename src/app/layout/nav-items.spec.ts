@@ -39,7 +39,7 @@ describe('menu and shortcuts of the guardian', () => {
 describe('menu and shortcuts of the administrator', () => {
   const knownPaths = ADMIN_ROUTES.map((route) => `/admin${route.path ? '/' + route.path : ''}`);
 
-  it('lists the catalog, enrollment and payment screens in order, with the profile last', () => {
+  it('lists the catalog, enrollment, payment and user screens in order, with the profile last', () => {
     expect(NAV_ITEMS.ADMIN.map((item) => item.label)).toEqual([
       'Inicio',
       'Disciplinas',
@@ -47,6 +47,7 @@ describe('menu and shortcuts of the administrator', () => {
       'Grupos',
       'Inscripciones',
       'Pagos',
+      'Usuarios',
       'Mi perfil',
     ]);
   });
