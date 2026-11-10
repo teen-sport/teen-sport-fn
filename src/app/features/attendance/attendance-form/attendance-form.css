@@ -1,0 +1,95 @@
+.summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-3);
+}
+
+.summary p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.roster {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.athlete {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-3);
+  align-items: center;
+  justify-content: space-between;
+  min-width: 0;
+  margin: 0;
+  padding: var(--space-3) 0;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.roster li:last-child .athlete {
+  border-bottom: 0;
+}
+
+.athlete legend {
+  float: left;
+  padding: 0;
+  font-weight: 600;
+}
+
+.athlete.missing legend {
+  color: var(--danger);
+}
+
+.choices {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.choice label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 7rem;
+  min-height: 2.75rem;
+  margin: 0;
+  padding: 0.4rem 0.9rem;
+  font-weight: 600;
+  background: var(--paper);
+  border: 1.5px solid var(--line);
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+
+.choice input {
+  flex: none;
+  width: 1.15rem;
+  height: 1.15rem;
+  padding: 0;
+  accent-color: var(--pitch);
+}
+
+.choice input:focus-visible + span {
+  outline: 3px solid var(--signal);
+  outline-offset: 4px;
+}
+
+.choice label:has(input:checked) {
+  background: var(--mist);
+  border-color: var(--pitch);
+}
+
+.athlete.missing .choice label {
+  border-color: var(--danger);
+}
+
+.hint-missing {
+  margin: 0;
+  color: var(--danger);
+  font-size: 0.9rem;
+  font-weight: 600;
+}

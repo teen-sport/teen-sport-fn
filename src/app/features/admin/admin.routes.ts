@@ -75,6 +75,43 @@ export const ADMIN_ROUTES: Routes = [
       ),
   },
   {
+    path: 'sessions',
+    title: 'Sesiones | TeenSport',
+    loadComponent: () =>
+      import('../attendance/session-list/session-list').then((m) => m.SessionList),
+  },
+  {
+    path: 'sessions/generate',
+    title: 'Generar sesiones | TeenSport',
+    loadComponent: () =>
+      import('../attendance/session-generate/session-generate').then((m) => m.SessionGenerate),
+  },
+  {
+    path: 'sessions/new',
+    title: 'Nueva sesión | TeenSport',
+    loadComponent: () =>
+      import('../attendance/session-form/session-form').then((m) => m.SessionForm),
+  },
+  {
+    path: 'sessions/:id/edit',
+    title: 'Reprogramar sesión | TeenSport',
+    loadComponent: () =>
+      import('../attendance/session-form/session-form').then((m) => m.SessionForm),
+  },
+  {
+    path: 'attendance',
+    title: 'Historial de asistencia | TeenSport',
+    loadComponent: () =>
+      import('../attendance/attendance-history/attendance-history').then(
+        (m) => m.AttendanceHistory,
+      ),
+  },
+  {
+    path: 'reports',
+    title: 'Reportes | TeenSport',
+    loadComponent: () => import('../reports/reports-page/reports-page').then((m) => m.ReportsPage),
+  },
+  {
     path: 'payments',
     title: 'Pagos | TeenSport',
     loadComponent: () =>

@@ -1,0 +1,120 @@
+<section class="card" aria-labelledby="attendance-report-title">
+  <h2 id="attendance-report-title">Asistencia y cobertura del registro</h2>
+  <p class="hint">
+    Cuenta las sesiones que ya pasaron y no se cancelaron. Sin fechas se muestra desde el día 1 del
+    mes hasta hoy.
+  </p>
+
+  <form
+    class="toolbar toolbar-dense"
+    [formGroup]="filters"
+    (submit)="$event.preventDefault(); apply()"
+  >
+    @if (groups().length > 1) {
+      <div class="field">
+        <label for="attendance-group">Grupo</label>
+        <select id="attendance-group" formControlName="groupId">
+          <option value="">Todos</option>
+          @for (group of groups(); track group.id) {
+            <option [value]="group.id">{{ group.name }}</option>
+          }
+        </select>
+      </div>
+    }
+    <div class="field">
+      <label for="attendance-from">Desde</label>
+      <input
+        id="attendance-from"
+        type="date"
+        formControlName="dateFrom"
+        [attr.aria-invalid]="rangeError() ? 'true' : null"
+        [attr.aria-describedby]="rangeError() ? 'attendance-range-error' : null"
+      />
+    </div>
+    <div class="field">
+      <label for="attendance-to">Hasta</label>
+      <input
+        id="attendance-to"
+        type="date"
+        formControlName="dateTo"
+        [attr.aria-invalid]="rangeError() ? 'true' : null"
+        [attr.aria-describedby]="rangeError() ? 'attendance-range-error' : null"
+      />
+    </div>
+    <button type="submit">Calcular</button>
+    @if (filtering) {
+      <button type="button" class="btn-secondary" (click)="clear()">Limpiar</button>
+    }
+  </form>
+  @if (rangeError()) {
+    <p class="alert" role="alert" id="attendance-range-error">
+      La fecha inicial no puede ser posterior a la fecha final.
+    </p>
+  }
+
+  @if (loading()) {
+    <p role="status">Calculando…</p>
+  } @else if (loadError(); as message) {
+    <p class="alert" role="alert">{{ message }}</p>
+    <button type="button" (click)="load()">Reintentar</button>
+  } @else if (report(); as current) {
+    @if (current.scheduledSessions === 0) {
+      <p class="empty-state">No hay sesiones que ya hayan pasado en este periodo.</p>
+    } @else {
+      <dl class="summary-grid">
+        <div>
+          <dt>Sesiones realizadas o por registrar</dt>
+          <dd>{{ current.scheduledSessions }}</dd>
+        </div>
+        <div>
+          <dt>Con asistencia registrada</dt>
+          <dd>{{ current.completedSessions }}</dd>
+        </div>
+        <div>
+          <dt>Cobertura del registro</dt>
+          <dd>{{ formatPercent(current.recordingCoverage) }}</dd>
+        </div>
+        <div>
+          <dt>Porcentaje de asistencia</dt>
+          <dd>{{ formatPercent(current.attendanceRate) }}</dd>
+        </div>
+      </dl>
+      <p class="notice" role="status">
+        @if (meetsTarget()) {
+          La cobertura cumple la meta de {{ target }} % o más.
+        } @else {
+          La cobertura está por debajo de la meta de {{ target }} %: faltan sesiones por registrar.
+        }
+      </p>
+
+      <div class="table-wrap">
+        <table class="table">
+          <caption class="sr-only">
+            Asistencia por grupo
+          </caption>
+          <thead>
+            <tr>
+              <th scope="col">Grupo</th>
+              <th scope="col">Sesiones</th>
+              <th scope="col">Con asistencia</th>
+              <th scope="col">Asistencia</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (item of current.byGroup; track item.groupId) {
+              <tr>
+                <th scope="row">
+                  {{ item.groupName }}
+                  <small class="plain">{{ item.discipline }}</small>
+                </th>
+                <td>{{ item.scheduledSessions }}</td>
+                <td>{{ item.completedSessions }}</td>
+                <td>{{ formatPercent(item.attendanceRate) }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  }
+</section>

@@ -30,6 +30,9 @@ export function firstError(control: AbstractControl | null): string | null {
   if (errors['futuredate']) {
     return 'La fecha no puede ser posterior a hoy.';
   }
+  if (errors['pastdate']) {
+    return 'La fecha no puede ser anterior a hoy.';
+  }
   if (errors['maxbytes']) {
     return 'La contraseña es demasiado larga.';
   }

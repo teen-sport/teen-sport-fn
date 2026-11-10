@@ -19,6 +19,8 @@ const money = new Intl.NumberFormat('es-CO', {
   maximumFractionDigits: 0,
 });
 
+const percent = new Intl.NumberFormat('es-CO', { maximumFractionDigits: 1 });
+
 /** Un día de calendario «YYYY-MM-DD» en la zona de la academia. */
 const academyDay = new Intl.DateTimeFormat('en-CA', {
   timeZone: ACADEMY_TIME_ZONE,
@@ -37,6 +39,13 @@ const longDate = new Intl.DateTimeFormat('es-CO', {
   day: 'numeric',
   month: 'long',
   year: 'numeric',
+  timeZone: 'UTC',
+});
+
+const weekdayDate = new Intl.DateTimeFormat('es-CO', {
+  weekday: 'long',
+  day: 'numeric',
+  month: 'long',
   timeZone: 'UTC',
 });
 
@@ -125,4 +134,49 @@ export function periodRange(
 /** El mes actual y los siguientes, para elegir el mes de inicio (el API no acepta meses pasados). */
 export function periodOptions(count = 6, now: Date = new Date()): PeriodOption[] {
   return periodRange(0, count - 1, now);
+}
+
+function parseDay(day: string): Date | null {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(day);
+  return match ? new Date(Date.UTC(+match[1], +match[2] - 1, +match[3])) : null;
+}
+
+function toDay(date: Date): string {
+  return date.toISOString().slice(0, 10);
+}
+
+/** Suma (o resta, con un número negativo) días a un «YYYY-MM-DD». Si el texto no es un día, lo devuelve igual. */
+export function addDays(day: string, amount: number): string {
+  const date = parseDay(day);
+  if (!date) {
+    return day;
+  }
+  date.setUTCDate(date.getUTCDate() + amount);
+  return toDay(date);
+}
+
+/** El lunes de la semana de un «YYYY-MM-DD» (la semana va de lunes a domingo, como en el API). */
+export function startOfWeek(day: string): string {
+  const date = parseDay(day);
+  if (!date) {
+    return day;
+  }
+  const sinceMonday = (date.getUTCDay() + 6) % 7;
+  return addDays(day, -sinceMonday);
+}
+
+/** «2026-10-05» → «Lunes, 5 de octubre». */
+export function formatWeekdayDate(date: string): string {
+  const parsed = parseDay(date);
+  return parsed ? capitalize(weekdayDate.format(parsed)) : date;
+}
+
+/** Porcentaje con hasta un decimal: 84.2 → «84,2 %». Sin dato (null) se escribe «—». */
+export function formatPercent(value: number | null | undefined): string {
+  return value == null ? '—' : `${percent.format(value)} %`;
+}
+
+/** Horas con hasta un decimal: 18.5 → «18,5 h». Sin dato (null) se escribe «—». */
+export function formatHours(value: number | null | undefined): string {
+  return value == null ? '—' : `${percent.format(value)} h`;
 }

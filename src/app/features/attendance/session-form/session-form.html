@@ -1,0 +1,160 @@
+<h1>{{ editing ? 'Reprogramar sesión' : 'Nueva sesión' }}</h1>
+
+@if (loading()) {
+  <p role="status">{{ editing ? 'Cargando la sesión…' : 'Cargando grupos…' }}</p>
+} @else if (loadError(); as message) {
+  <p class="alert" role="alert">{{ message }}</p>
+  <div class="actions">
+    <button type="button" (click)="load()">Reintentar</button>
+    <a class="btn btn-secondary" [routerLink]="base()">Volver a las sesiones</a>
+  </div>
+} @else if (session(); as current) {
+  @if (current.status !== 'SCHEDULED') {
+    <section class="card form-card">
+      <p class="alert" role="alert">
+        Esta sesión ya no está programada, así que no se puede reprogramar.
+      </p>
+      <div class="actions">
+        <a class="btn btn-secondary" [routerLink]="base()">Volver a las sesiones</a>
+      </div>
+    </section>
+  } @else {
+    <section class="card form-card">
+      <p class="hint">
+        {{ current.group.name }} · {{ current.discipline.name }}. Ahora está el
+        {{ formatWeekdayDate(current.date) }}, de {{ current.startTime }} a {{ current.endTime }}.
+      </p>
+      <ng-container [ngTemplateOutlet]="fields" />
+    </section>
+  }
+} @else if (groups().length === 0) {
+  <section class="card form-card">
+    <p class="empty-state">
+      {{ isAdmin() ? 'No hay grupos activos.' : 'No tienes grupos activos.' }}
+      Para crear una sesión se necesita al menos un grupo activo.
+    </p>
+    <div class="actions">
+      @if (isAdmin()) {
+        <a class="btn" routerLink="/admin/groups/new">Crear un grupo</a>
+      }
+      <a class="btn btn-secondary" [routerLink]="base()">Volver a las sesiones</a>
+    </div>
+  </section>
+} @else {
+  <section class="card form-card">
+    <p class="hint">
+      Sirve para una sesión extra o fuera de horario: puede ser en un día y una hora distintos a los
+      horarios del grupo. Para crear varias a la vez, usa «Generar sesiones».
+    </p>
+    <ng-container [ngTemplateOutlet]="fields" />
+  </section>
+}
+
+<ng-template #fields>
+  <form [formGroup]="form" (submit)="$event.preventDefault(); submit()" novalidate>
+    @if (formError(); as message) {
+      <p class="alert" role="alert">{{ message }}</p>
+    }
+
+    @if (!editing) {
+      @let groupError = firstError(form.controls.groupId);
+      <div class="field">
+        <label for="groupId">Grupo</label>
+        <select
+          id="groupId"
+          formControlName="groupId"
+          [attr.aria-invalid]="groupError ? 'true' : null"
+          [attr.aria-describedby]="groupError ? 'groupId-error' : null"
+        >
+          <option value="">Elige un grupo</option>
+          @for (group of groups(); track group.id) {
+            <option [value]="group.id">{{ group.name }} · {{ group.discipline.name }}</option>
+          }
+        </select>
+        @if (groupError) {
+          <p class="error" id="groupId-error">{{ groupError }}</p>
+        }
+      </div>
+    }
+
+    @let dateError = firstError(form.controls.date);
+    <div class="field">
+      <label for="date">Fecha</label>
+      <input
+        id="date"
+        type="date"
+        formControlName="date"
+        [min]="today"
+        [attr.aria-invalid]="dateError ? 'true' : null"
+        [attr.aria-describedby]="dateError ? 'date-error' : null"
+      />
+      @if (dateError) {
+        <p class="error" id="date-error">{{ dateError }}</p>
+      }
+    </div>
+
+    <div class="row">
+      @let startError = firstError(form.controls.startTime);
+      <div class="field">
+        <label for="startTime">Hora de inicio</label>
+        <input
+          id="startTime"
+          type="time"
+          formControlName="startTime"
+          [attr.aria-invalid]="startError ? 'true' : null"
+          [attr.aria-describedby]="startError ? 'startTime-error' : null"
+        />
+        @if (startError) {
+          <p class="error" id="startTime-error">{{ startError }}</p>
+        }
+      </div>
+
+      @let endError = firstError(form.controls.endTime);
+      @let rangeError = form.hasError('timerange') && form.controls.endTime.touched;
+      <div class="field">
+        <label for="endTime">Hora de fin</label>
+        <input
+          id="endTime"
+          type="time"
+          formControlName="endTime"
+          [attr.aria-invalid]="endError || rangeError ? 'true' : null"
+          [attr.aria-describedby]="endError || rangeError ? 'endTime-error' : null"
+        />
+        @if (endError) {
+          <p class="error" id="endTime-error">{{ endError }}</p>
+        } @else if (rangeError) {
+          <p class="error" id="endTime-error">
+            La hora de fin debe ser posterior a la hora de inicio.
+          </p>
+        }
+      </div>
+    </div>
+
+    @let notesError = firstError(form.controls.notes);
+    <div class="field">
+      <label for="notes">Notas (opcional)</label>
+      <textarea
+        id="notes"
+        rows="3"
+        formControlName="notes"
+        [attr.maxlength]="maxNotes"
+        [attr.aria-invalid]="notesError ? 'true' : null"
+        [attr.aria-describedby]="notesError ? 'notes-error' : null"
+      ></textarea>
+      @if (notesError) {
+        <p class="error" id="notes-error">{{ notesError }}</p>
+      }
+    </div>
+
+    <div class="actions">
+      <button type="submit" [disabled]="submitting()">
+        @if (submitting()) {
+          Guardando…
+        } @else {
+          {{ editing ? 'Guardar cambios' : 'Crear sesión' }}
+        }
+      </button>
+      <a class="btn btn-secondary" [routerLink]="base()">Cancelar</a>
+    </div>
+  </form>
+</ng-template>

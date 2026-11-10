@@ -23,6 +23,9 @@ const PROFILE_NAV: NavItem = { label: 'Mi perfil', route: '/profile' };
  */
 export const COLLAPSE_MENU_FROM = 7;
 
+/** Roles cuyo menú se recoge detrás de las tres rayas en cualquier pantalla, aunque tengan pocas opciones. */
+export const COLLAPSED_MENU_ROLES: readonly Role[] = ['COACH'];
+
 /** Menú de cada rol. Cada módulo nuevo agrega aquí sus enlaces (antes de «Mi perfil»). */
 export const NAV_ITEMS: Record<Role, NavItem[]> = {
   ADMIN: [
@@ -30,18 +33,29 @@ export const NAV_ITEMS: Record<Role, NavItem[]> = {
     { label: 'Disciplinas', route: '/admin/disciplines' },
     { label: 'Entrenadores', route: '/admin/coaches' },
     { label: 'Grupos', route: '/admin/groups' },
+    { label: 'Sesiones', route: '/admin/sessions' },
+    { label: 'Historial de asistencia', route: '/admin/attendance' },
+    { label: 'Reportes', route: '/admin/reports' },
     { label: 'Inscripciones', route: '/admin/enrollments' },
     { label: 'Pagos', route: '/admin/payments' },
     { label: 'Usuarios', route: '/admin/users' },
     PROFILE_NAV,
   ],
-  COACH: [{ label: 'Inicio', route: '/coach', exact: true }, PROFILE_NAV],
+  COACH: [
+    { label: 'Inicio', route: '/coach', exact: true },
+    { label: 'Sesiones', route: '/coach/sessions' },
+    { label: 'Historial de asistencia', route: '/coach/attendance' },
+    { label: 'Reportes', route: '/coach/reports' },
+    PROFILE_NAV,
+  ],
   GUARDIAN: [
     { label: 'Inicio', route: '/guardian', exact: true },
     { label: 'Mis deportistas', route: '/guardian/athletes' },
     { label: 'Grupos disponibles', route: '/guardian/groups' },
     { label: 'Mis inscripciones', route: '/guardian/enrollments' },
     { label: 'Mis pagos', route: '/guardian/payments' },
+    { label: 'Sesiones', route: '/guardian/sessions' },
+    { label: 'Historial de asistencia', route: '/guardian/attendance' },
     PROFILE_NAV,
   ],
 };
@@ -68,6 +82,23 @@ export const SHORTCUTS: Record<Role, Shortcut[]> = {
       route: '/admin/groups',
     },
     {
+      title: 'Sesiones',
+      description:
+        'Genera las sesiones de cada grupo, reprograma o cancela, y revisa la asistencia.',
+      route: '/admin/sessions',
+    },
+    {
+      title: 'Historial de asistencia',
+      description: 'Consulta la asistencia registrada y el resumen de cada deportista.',
+      route: '/admin/attendance',
+    },
+    {
+      title: 'Reportes',
+      description:
+        'Mira la cobertura de la asistencia, quién falta seguido y cómo van las inscripciones.',
+      route: '/admin/reports',
+    },
+    {
       title: 'Inscripciones',
       description: 'Revisa las solicitudes: confirma, rechaza o cambia de grupo.',
       route: '/admin/enrollments',
@@ -83,7 +114,23 @@ export const SHORTCUTS: Record<Role, Shortcut[]> = {
       route: '/admin/users',
     },
   ],
-  COACH: [],
+  COACH: [
+    {
+      title: 'Sesiones y asistencia',
+      description: 'Genera tus sesiones, mira la semana y marca quién asistió.',
+      route: '/coach/sessions',
+    },
+    {
+      title: 'Historial de asistencia',
+      description: 'Consulta la asistencia que registraste y el resumen de cada deportista.',
+      route: '/coach/attendance',
+    },
+    {
+      title: 'Reportes',
+      description: 'Mira la cobertura de tu asistencia y quién de tus deportistas falta seguido.',
+      route: '/coach/reports',
+    },
+  ],
   GUARDIAN: [
     {
       title: 'Mis deportistas',
@@ -104,6 +151,16 @@ export const SHORTCUTS: Record<Role, Shortcut[]> = {
       title: 'Mis pagos',
       description: 'Revisa el historial de pagos registrados por la academia.',
       route: '/guardian/payments',
+    },
+    {
+      title: 'Sesiones',
+      description: 'Mira los entrenamientos de la semana de tus deportistas.',
+      route: '/guardian/sessions',
+    },
+    {
+      title: 'Historial de asistencia',
+      description: 'Consulta a cuáles entrenamientos asistió cada deportista.',
+      route: '/guardian/attendance',
     },
   ],
 };

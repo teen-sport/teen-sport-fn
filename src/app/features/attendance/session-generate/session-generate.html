@@ -1,0 +1,178 @@
+<h1>Generar sesiones</h1>
+
+@if (loading()) {
+  <p role="status">Cargando grupos…</p>
+} @else if (loadError(); as message) {
+  <p class="alert" role="alert">{{ message }}</p>
+  <div class="actions">
+    <button type="button" (click)="load()">Reintentar</button>
+    <a class="btn btn-secondary" [routerLink]="base()">Volver a las sesiones</a>
+  </div>
+} @else if (groups().length === 0) {
+  <section class="card form-card">
+    <p class="empty-state">
+      {{ isAdmin() ? 'No hay grupos activos.' : 'No tienes grupos activos.' }}
+      Para generar sesiones se necesita al menos un grupo activo con horarios.
+    </p>
+    <div class="actions">
+      @if (isAdmin()) {
+        <a class="btn" routerLink="/admin/groups/new">Crear un grupo</a>
+      }
+      <a class="btn btn-secondary" [routerLink]="base()">Volver a las sesiones</a>
+    </div>
+  </section>
+} @else {
+  <section class="card form-card">
+    <p class="hint">
+      Se crea una sesión por cada horario semanal del grupo en cada día del rango. Las que ya
+      existen se omiten, así que puedes repetirlo sin duplicar. El rango puede ser de hasta
+      {{ maxDays }} días.
+    </p>
+
+    <form [formGroup]="form" (submit)="$event.preventDefault(); submit()" novalidate>
+      @if (formError(); as message) {
+        <p class="alert" role="alert">{{ message }}</p>
+      }
+
+      @let groupError = firstError(form.controls.groupId);
+      <div class="field">
+        <label for="groupId">Grupo</label>
+        <select
+          id="groupId"
+          formControlName="groupId"
+          [attr.aria-invalid]="groupError ? 'true' : null"
+          [attr.aria-describedby]="groupError ? 'groupId-error' : null"
+        >
+          <option value="">Elige un grupo</option>
+          @for (group of groups(); track group.id) {
+            <option [value]="group.id">{{ group.name }} · {{ group.discipline.name }}</option>
+          }
+        </select>
+        @if (groupError) {
+          <p class="error" id="groupId-error">{{ groupError }}</p>
+        }
+      </div>
+
+      @if (selectedGroup(); as group) {
+        <div class="notice" aria-live="polite">
+          @if (group.schedules.length === 0) {
+            <p>
+              Este grupo no tiene horarios semanales, así que no hay sesiones que generar.
+              @if (isAdmin()) {
+                <a [routerLink]="['/admin/groups', group.id]">Agrégale horarios</a>
+              }
+            </p>
+          } @else {
+            <p>Se generarán sesiones en estos horarios:</p>
+            <ul>
+              @for (schedule of group.schedules; track schedule.id) {
+                <li>{{ formatSchedule(schedule) }}</li>
+              }
+            </ul>
+          }
+        </div>
+      }
+
+      <div class="row">
+        @let fromError = firstError(form.controls.dateFrom);
+        <div class="field">
+          <label for="dateFrom">Desde</label>
+          <input
+            id="dateFrom"
+            type="date"
+            formControlName="dateFrom"
+            [min]="today"
+            [attr.aria-invalid]="fromError ? 'true' : null"
+            [attr.aria-describedby]="fromError ? 'dateFrom-error' : null"
+          />
+          @if (fromError) {
+            <p class="error" id="dateFrom-error">{{ fromError }}</p>
+          }
+        </div>
+
+        @let toError = firstError(form.controls.dateTo);
+        @let rangeProblem = form.hasError('daterange') || form.hasError('rangetoolong');
+        <div class="field">
+          <label for="dateTo">Hasta</label>
+          <input
+            id="dateTo"
+            type="date"
+            formControlName="dateTo"
+            [min]="form.controls.dateFrom.value || today"
+            [attr.aria-invalid]="toError || rangeProblem ? 'true' : null"
+            [attr.aria-describedby]="toError || rangeProblem ? 'dateTo-error' : null"
+          />
+          @if (toError) {
+            <p class="error" id="dateTo-error">{{ toError }}</p>
+          } @else if (form.hasError('daterange')) {
+            <p class="error" id="dateTo-error">
+              La fecha final no puede ser anterior a la inicial.
+            </p>
+          } @else if (form.hasError('rangetoolong')) {
+            <p class="error" id="dateTo-error">El rango no puede pasar de {{ maxDays }} días.</p>
+          }
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="check">
+          <input type="checkbox" formControlName="notify" />
+          <span>
+            Avisar a los acudientes del grupo
+            <small>
+              Por ahora el servidor recibe esta opción pero todavía no envía el correo.
+            </small>
+          </span>
+        </label>
+      </div>
+
+      <div class="actions">
+        <button type="submit" [disabled]="submitting()">
+          {{ submitting() ? 'Generando…' : 'Generar sesiones' }}
+        </button>
+        <a class="btn btn-secondary" [routerLink]="base()">Volver a las sesiones</a>
+      </div>
+    </form>
+  </section>
+
+  @if (result(); as generated) {
+    <section class="card form-card" aria-live="polite" aria-labelledby="result-title">
+      <h2 id="result-title">Resultado</h2>
+      <p class="notice" role="status">
+        @if (generated.created === 0) {
+          No se creó ninguna sesión.
+        } @else if (generated.created === 1) {
+          Se creó 1 sesión.
+        } @else {
+          Se crearon {{ generated.created }} sesiones.
+        }
+        @if (generated.skipped > 0) {
+          {{
+            generated.skipped === 1
+              ? 'Ya existía 1, así que se omitió.'
+              : 'Ya existían ' + generated.skipped + ', así que se omitieron.'
+          }}
+        }
+        @if (generated.created === 0 && generated.skipped === 0) {
+          En ese rango el grupo no tiene ningún día con horario.
+        }
+      </p>
+
+      @if (generated.sessions.length > 0) {
+        <ul>
+          @for (session of generated.sessions; track session.id) {
+            <li>
+              {{ formatWeekdayDate(session.date) }}, {{ session.startTime }} – {{ session.endTime }}
+            </li>
+          }
+        </ul>
+      }
+
+      <div class="actions">
+        <a class="btn" [routerLink]="base()" [queryParams]="{ date: generatedFrom() }">
+          Ver las sesiones
+        </a>
+      </div>
+    </section>
+  }
+}

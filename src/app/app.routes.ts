@@ -1,8 +1,6 @@
 import { Routes } from '@angular/router';
 import { authGuard, guestGuard, roleGuard } from './Core/Auth/auth.guards';
 
-const homePage = () => import('./features/home/home-shell/home-shell').then((m) => m.HomeShell);
-
 export const routes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'login' },
   {
@@ -30,10 +28,10 @@ export const routes: Routes = [
         loadChildren: () => import('./features/admin/admin.routes').then((m) => m.ADMIN_ROUTES),
       },
       {
+        // Un solo guard protege todas las pantallas del entrenador.
         path: 'coach',
-        title: 'Entrenador | TeenSport',
         canActivate: [roleGuard('COACH')],
-        loadComponent: homePage,
+        loadChildren: () => import('./features/coach/coach.routes').then((m) => m.COACH_ROUTES),
       },
       {
         // Un solo guard protege todas las pantallas del acudiente.

@@ -4,7 +4,7 @@ import { AuthService } from '../../Core/Auth/auth.service';
 import { homeRouteFor } from '../../Core/Auth/role-home';
 import { SessionService } from '../../Core/Auth/session.service';
 import { ROLE_LABELS } from '../../Core/Models/role';
-import { COLLAPSE_MENU_FROM, NAV_ITEMS } from '../nav-items';
+import { COLLAPSE_MENU_FROM, COLLAPSED_MENU_ROLES, NAV_ITEMS } from '../nav-items';
 
 /** Ancho (80 rem = 1280 px) por debajo del cual el menú se recoge detrás de las tres rayas. */
 const NARROW_SCREEN = '(max-width: 80rem)';
@@ -44,10 +44,15 @@ export class AppShell {
   protected readonly menuOpen = signal(false);
 
   private readonly narrow = signal(false);
-  /** Menú recogido: pantalla angosta o rol con muchas opciones. */
-  protected readonly compact = computed(
-    () => this.narrow() || this.items().length >= COLLAPSE_MENU_FROM,
-  );
+  /** Menú recogido: pantalla angosta o rol con muchas opciones o que se recoge siempre (`COLLAPSED_MENU_ROLES`). */
+  protected readonly compact = computed(() => {
+    const role = this.session.role();
+    return (
+      this.narrow() ||
+      this.items().length >= COLLAPSE_MENU_FROM ||
+      (role !== null && COLLAPSED_MENU_ROLES.includes(role))
+    );
+  });
 
   constructor() {
     // matchMedia avisa cuando la ventana cruza el ancho límite (por ejemplo, al girar el celular).

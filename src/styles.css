@@ -532,3 +532,168 @@ app-enrollment-group-change + .card {
   margin: 0.2rem 0 0;
   accent-color: var(--pitch);
 }
+
+/* Cifras de un resumen (historial y reportes): etiqueta pequeña arriba y número grande debajo */
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  gap: var(--space-3);
+  margin: var(--space-3) 0;
+}
+
+.summary-grid > div {
+  padding: var(--space-3);
+  background: var(--mist);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+
+.summary-grid dt {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.summary-grid dd {
+  margin: var(--space-1) 0 0;
+  font-family: var(--font-display);
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+/* Texto de ayuda dentro de una casilla de verificación */
+.check small {
+  display: block;
+  font-weight: 400;
+  color: var(--muted);
+}
+
+/* Cabecera de pantalla: título a la izquierda y un menú de acciones a la derecha */
+.page-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+
+.page-wide .page-head h1 {
+  margin: 0;
+  text-align: left;
+}
+
+/* Menú desplegable de acciones (se abre con un botón y se cierra con Escape o fuera del menú) */
+.menu {
+  position: relative;
+}
+
+.menu-list {
+  position: absolute;
+  top: calc(100% + var(--space-1));
+  right: 0;
+  z-index: 10;
+  min-width: 17rem;
+  margin: 0;
+  padding: var(--space-1);
+  list-style: none;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: 0 8px 24px rgb(15 42 28 / 14%);
+}
+
+.menu-list[hidden] {
+  display: none;
+}
+
+.menu-list a {
+  display: block;
+  padding: 0.6rem 0.75rem;
+  text-decoration: none;
+  border-radius: calc(var(--radius) - 2px);
+}
+
+.menu-list a:hover,
+.menu-list a:focus-visible {
+  background: var(--mist);
+}
+
+.menu-list small {
+  display: block;
+  font-weight: 400;
+  color: var(--muted);
+}
+
+/* Panel con los controles de una lista: cada uno con su título, una frase que explica para qué sirve y
+   el control abajo, todos alineados */
+.week-bar {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+  gap: var(--space-3) var(--space-4);
+  margin-bottom: var(--space-4);
+  padding: var(--space-3);
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: calc(var(--radius) * 2);
+}
+
+.control {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 0;
+}
+
+.control-title {
+  margin: 0 0 var(--space-1);
+  font-weight: 700;
+}
+
+.control-hint {
+  margin: 0 0 var(--space-2);
+  font-size: 0.95rem;
+  color: var(--muted);
+}
+
+.control-input {
+  margin-top: auto;
+}
+
+select.control-input {
+  width: 100%;
+}
+
+.segmented {
+  display: inline-flex;
+  overflow: hidden;
+  border: 2px solid var(--pitch);
+  border-radius: var(--radius);
+}
+
+.segmented button {
+  padding: 0.5rem 1rem;
+  color: var(--pitch);
+  background: var(--paper);
+  border: 0;
+  border-radius: 0;
+}
+
+.segmented button + button {
+  border-left: 2px solid var(--pitch);
+}
+
+.segmented button:hover:not(:disabled) {
+  color: var(--paper);
+  background: var(--pitch);
+}
+
+.segmented button.is-current {
+  color: var(--paper);
+  background: var(--pitch);
+}
+
+.page-head .lead {
+  margin: var(--space-1) 0 0;
+}

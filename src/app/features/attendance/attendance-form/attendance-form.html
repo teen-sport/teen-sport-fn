@@ -1,0 +1,109 @@
+<h1>Asistencia</h1>
+
+@if (loading()) {
+  <p role="status">Cargando la lista…</p>
+} @else if (loadError(); as message) {
+  <p class="alert" role="alert">{{ message }}</p>
+  <div class="actions">
+    <button type="button" (click)="load()">Reintentar</button>
+    <a class="btn btn-secondary" routerLink="/coach/sessions">Volver a las sesiones</a>
+  </div>
+} @else if (roster(); as current) {
+  <section class="card form-card">
+    <p>
+      <strong>{{ current.group.name }}</strong> · {{ formatWeekdayDate(current.date) }}
+    </p>
+
+    @switch (blocked()) {
+      @case ('cancelled') {
+        <p class="alert" role="status">La sesión está cancelada y no admite asistencia.</p>
+      }
+      @case ('future') {
+        <p class="notice" role="status">
+          Esta sesión es el {{ formatWeekdayDate(current.date) }}. La asistencia se puede tomar
+          desde ese día.
+        </p>
+      }
+      @case ('empty') {
+        <p class="empty-state">
+          Este grupo no tiene deportistas con inscripción activa para esta fecha, así que no hay
+          lista que marcar.
+        </p>
+      }
+      @default {
+        @if (current.attendanceRecorded) {
+          <p class="hint">
+            Ya registraste la asistencia de esta sesión. Si cambias una marca, guarda de nuevo para
+            corregirla.
+          </p>
+        }
+
+        <form (submit)="$event.preventDefault(); submit()" novalidate>
+          @if (formError(); as message) {
+            <p class="alert" role="alert">{{ message }}</p>
+          }
+
+          <div class="summary">
+            <p aria-live="polite">
+              Marcados {{ markedCount() }} de {{ entries().length }} · Presentes
+              {{ presentCount() }} · Ausentes {{ absentCount() }}
+            </p>
+            <button type="button" class="btn-secondary btn-small" (click)="markAllPresent()">
+              Marcar a todos presentes
+            </button>
+          </div>
+
+          <ul class="roster">
+            @for (entry of entries(); track entry.athleteId) {
+              <li>
+                <fieldset class="athlete" [class.missing]="isMissing(entry)">
+                  <legend>{{ entry.lastNames }} {{ entry.firstNames }}</legend>
+                  <div class="choices">
+                    <div class="choice">
+                      <label>
+                        <input
+                          type="radio"
+                          [name]="'mark-' + entry.athleteId"
+                          [checked]="markOf(entry) === 'PRESENT'"
+                          (change)="mark(entry, 'PRESENT')"
+                        />
+                        <span>Presente</span>
+                      </label>
+                    </div>
+                    <div class="choice">
+                      <label>
+                        <input
+                          type="radio"
+                          [name]="'mark-' + entry.athleteId"
+                          [checked]="markOf(entry) === 'ABSENT'"
+                          (change)="mark(entry, 'ABSENT')"
+                        />
+                        <span>Ausente</span>
+                      </label>
+                    </div>
+                  </div>
+                  @if (isMissing(entry)) {
+                    <p class="hint-missing">Sin marcar</p>
+                  }
+                </fieldset>
+              </li>
+            }
+          </ul>
+
+          <div class="actions">
+            <button type="submit" [disabled]="submitting()">
+              {{ submitting() ? 'Guardando…' : 'Guardar asistencia' }}
+            </button>
+            <a class="btn btn-secondary" routerLink="/coach/sessions">Cancelar</a>
+          </div>
+        </form>
+      }
+    }
+
+    @if (blocked()) {
+      <div class="actions">
+        <a class="btn btn-secondary" routerLink="/coach/sessions">Volver a las sesiones</a>
+      </div>
+    }
+  </section>
+}

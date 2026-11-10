@@ -1,9 +1,12 @@
 import { FormControl, FormGroup } from '@angular/forms';
 import {
   checkPassword,
+  dateRangeWithin,
+  endAfterStart,
   maxUtf8Bytes,
   notBlank,
   notFutureDate,
+  notPastDate,
   sameValue,
   strongPassword,
 } from './validators';
@@ -79,5 +82,61 @@ describe('notFutureDate', () => {
     vi.setSystemTime(new Date('2026-10-17T02:30:00Z'));
     expect(notFutureDate(new FormControl('2026-10-16'))).toBeNull();
     expect(notFutureDate(new FormControl('2026-10-17'))).toEqual({ futuredate: true });
+  });
+});
+
+describe('notPastDate', () => {
+  afterEach(() => vi.useRealTimers());
+
+  it('accepts an empty field, today and later dates', () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-11-10T15:00:00Z'));
+    expect(notPastDate(new FormControl(''))).toBeNull();
+    expect(notPastDate(new FormControl('2026-11-10'))).toBeNull();
+    expect(notPastDate(new FormControl('2026-12-01'))).toBeNull();
+  });
+
+  it('rejects a date before today', () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-11-10T15:00:00Z'));
+    expect(notPastDate(new FormControl('2026-11-09'))).toEqual({ pastdate: true });
+  });
+});
+
+describe('endAfterStart', () => {
+  const group = (start: string, end: string) =>
+    new FormGroup({ start: new FormControl(start), end: new FormControl(end) });
+  const validate = endAfterStart('start', 'end');
+
+  it('accepts an end later than the start, and does not judge while a field is empty', () => {
+    expect(validate(group('16:00', '17:30'))).toBeNull();
+    expect(validate(group('16:00', ''))).toBeNull();
+    expect(validate(group('', '17:30'))).toBeNull();
+  });
+
+  it('rejects an end equal to or before the start', () => {
+    expect(validate(group('16:00', '16:00'))).toEqual({ timerange: true });
+    expect(validate(group('16:00', '15:00'))).toEqual({ timerange: true });
+  });
+});
+
+describe('dateRangeWithin', () => {
+  const group = (from: string, to: string) =>
+    new FormGroup({ from: new FormControl(from), to: new FormControl(to) });
+  const validate = dateRangeWithin('from', 'to', 62);
+
+  it('accepts a range of one day up to the maximum, and does not judge while a date is empty', () => {
+    expect(validate(group('2026-11-10', '2026-11-10'))).toBeNull();
+    // 62 días contando los dos extremos: del 10 de noviembre al 10 de enero.
+    expect(validate(group('2026-11-10', '2027-01-10'))).toBeNull();
+    expect(validate(group('2026-11-10', ''))).toBeNull();
+  });
+
+  it('rejects an end before the start', () => {
+    expect(validate(group('2026-11-10', '2026-11-09'))).toEqual({ daterange: true });
+  });
+
+  it('rejects a range longer than the maximum', () => {
+    expect(validate(group('2026-11-10', '2027-01-11'))).toEqual({ rangetoolong: true });
   });
 });

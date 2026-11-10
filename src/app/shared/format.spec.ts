@@ -1,13 +1,18 @@
 import {
+  addDays,
   currentPeriod,
   dayLabel,
   formatDate,
+  formatHours,
   formatInstantDate,
   formatMoney,
+  formatPercent,
   formatPeriod,
   formatSchedule,
+  formatWeekdayDate,
   periodOptions,
   periodRange,
+  startOfWeek,
   todayInAcademy,
 } from './format';
 
@@ -73,5 +78,47 @@ describe('format helpers', () => {
       '2026-02',
     ]);
     expect(options[1].label).toBe('Diciembre de 2025');
+  });
+});
+
+describe('days and weeks', () => {
+  it('adds and subtracts days across months and years', () => {
+    expect(addDays('2026-10-30', 3)).toBe('2026-11-02');
+    expect(addDays('2026-01-02', -3)).toBe('2025-12-30');
+    expect(addDays('2028-02-28', 1)).toBe('2028-02-29');
+  });
+
+  it('leaves a text that is not a day as it is', () => {
+    expect(addDays('mañana', 1)).toBe('mañana');
+    expect(startOfWeek('mañana')).toBe('mañana');
+    expect(formatWeekdayDate('mañana')).toBe('mañana');
+  });
+
+  it.each([
+    ['2026-11-09', '2026-11-09'], // lunes
+    ['2026-11-10', '2026-11-09'], // martes
+    ['2026-11-15', '2026-11-09'], // domingo
+    ['2026-11-16', '2026-11-16'], // lunes siguiente
+  ])('starts the week of %s on Monday %s', (day, monday) => {
+    expect(startOfWeek(day)).toBe(monday);
+  });
+
+  it('writes the weekday with the date', () => {
+    expect(formatWeekdayDate('2026-11-10')).toBe('Martes, 10 de noviembre');
+  });
+
+  it('writes a percentage with at most one decimal and a dash when there is no data', () => {
+    expect(formatPercent(84.2)).toBe('84,2 %');
+    expect(formatPercent(100)).toBe('100 %');
+    expect(formatPercent(66.666)).toBe('66,7 %');
+    expect(formatPercent(0)).toBe('0 %');
+    expect(formatPercent(null)).toBe('—');
+    expect(formatPercent(undefined)).toBe('—');
+  });
+
+  it('writes hours with at most one decimal and a dash when there is no data', () => {
+    expect(formatHours(18.5)).toBe('18,5 h');
+    expect(formatHours(24)).toBe('24 h');
+    expect(formatHours(null)).toBe('—');
   });
 });

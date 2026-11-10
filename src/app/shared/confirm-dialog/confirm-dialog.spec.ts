@@ -11,6 +11,7 @@ import { ConfirmDialog } from './confirm-dialog';
     [danger]="true"
     [busy]="busy"
     [reasonLabel]="reasonLabel"
+    [reasonRequired]="reasonRequired"
     (confirmed)="confirmed.push($event)"
     (dismissed)="dismissed = dismissed + 1"
   />`,
@@ -18,6 +19,7 @@ import { ConfirmDialog } from './confirm-dialog';
 class Host {
   busy = false;
   reasonLabel: string | null = null;
+  reasonRequired = false;
   confirmed: (string | undefined)[] = [];
   dismissed = 0;
 }
@@ -73,6 +75,34 @@ describe('ConfirmDialog', () => {
     const { host, confirmButton } = await render((h) => (h.reasonLabel = 'Motivo'));
     confirmButton().click();
     expect(host.confirmed).toEqual([undefined]);
+  });
+
+  it('does not confirm a required reason left blank and says so', async () => {
+    const { host, fixture, el, confirmButton } = await render((h) => {
+      h.reasonLabel = 'Motivo';
+      h.reasonRequired = true;
+    });
+    confirmButton().click();
+    await fixture.whenStable();
+    expect(host.confirmed).toEqual([]);
+    expect(el.querySelector('#confirm-reason-error')?.textContent).toContain('Escribe el motivo');
+    expect(el.querySelector('#confirm-reason')?.getAttribute('aria-invalid')).toBe('true');
+  });
+
+  it('confirms a required reason once it is written', async () => {
+    const { host, fixture, el, confirmButton } = await render((h) => {
+      h.reasonLabel = 'Motivo';
+      h.reasonRequired = true;
+    });
+    confirmButton().click();
+    const reason = el.querySelector<HTMLTextAreaElement>('#confirm-reason')!;
+    reason.value = 'Lluvia fuerte';
+    reason.dispatchEvent(new Event('input'));
+    await fixture.whenStable();
+    confirmButton().click();
+    await fixture.whenStable();
+    expect(host.confirmed).toEqual(['Lluvia fuerte']);
+    expect(el.querySelector('#confirm-reason-error')).toBeNull();
   });
 
   it('is dismissed with the back button, the backdrop and Escape', async () => {

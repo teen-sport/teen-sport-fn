@@ -1,5 +1,5 @@
 import { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
-import { todayInAcademy } from './format';
+import { addDays, todayInAcademy } from './format';
 
 const UPPERCASE = /\p{Lu}/u;
 const LOWERCASE = /\p{Ll}/u;
@@ -75,3 +75,47 @@ export const notFutureDate: ValidatorFn = (control) => {
     ? { futuredate: true }
     : null;
 };
+
+/**
+ * Una fecha «YYYY-MM-DD» que no sea anterior a hoy (según la zona de la academia). Un campo vacío se
+ * acepta; para exigirlo usa `required`.
+ */
+export const notPastDate: ValidatorFn = (control) => {
+  const value = control.value;
+  return typeof value === 'string' && value !== '' && value < todayInAcademy()
+    ? { pastdate: true }
+    : null;
+};
+
+/**
+ * Validador de grupo: la hora de fin debe ser posterior a la de inicio. Las horas «HH:mm» se comparan
+ * como texto. Si falta alguna de las dos, no opina (para eso está `required` en cada campo).
+ */
+export function endAfterStart(startField: string, endField: string): ValidatorFn {
+  return (group) => {
+    const start = group.get(startField)?.value;
+    const end = group.get(endField)?.value;
+    return typeof start === 'string' && typeof end === 'string' && start && end && end <= start
+      ? { timerange: true }
+      : null;
+  };
+}
+
+/**
+ * Validador de grupo para un rango de fechas «YYYY-MM-DD», con los dos extremos incluidos: la fecha
+ * final no puede ser anterior a la inicial, y el rango no puede pasar de `maxDays` días (el servidor
+ * rechaza más de 62). Si falta alguna de las dos fechas, no opina.
+ */
+export function dateRangeWithin(fromField: string, toField: string, maxDays: number): ValidatorFn {
+  return (group) => {
+    const from = group.get(fromField)?.value;
+    const to = group.get(toField)?.value;
+    if (typeof from !== 'string' || typeof to !== 'string' || !from || !to) {
+      return null;
+    }
+    if (to < from) {
+      return { daterange: true };
+    }
+    return to > addDays(from, maxDays - 1) ? { rangetoolong: true } : null;
+  };
+}

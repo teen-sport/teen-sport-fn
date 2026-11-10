@@ -1,0 +1,7 @@
+<h1>Reportes e indicadores</h1>
+
+<app-attendance-report [groups]="groups()" />
+<app-recurrent-absences [groups]="groups()" />
+@if (isAdmin()) {
+  <app-enrollment-report />
+}
