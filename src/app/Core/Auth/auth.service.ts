@@ -6,8 +6,7 @@ import { environment } from '../../../environments/environment';
 import { LoginRequest, LoginResponse } from './auth.models';
 import { SessionService } from './session.service';
 import { RegisterGuardianRequest } from './auth.models';
-import { UserProfile } from './auth.models';
-
+import { PasswordResetConfirmRequest, PasswordResetRequest, UserProfile } from './auth.models';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -27,5 +26,15 @@ export class AuthService {
   }
   register(request: RegisterGuardianRequest): Observable<UserProfile> {
     return this.http.post<UserProfile>(`${environment.apiBaseUrl}/users/register`, request);
+  }
+
+  /** U13. El back siempre responde 202, exista o no el correo. */
+  requestPasswordReset(request: PasswordResetRequest): Observable<void> {
+    return this.http.post<void>(`${environment.apiBaseUrl}/auth/password-reset/request`, request);
+  }
+
+  /** U14. Cambia la contraseña con el token del enlace (204 sin cuerpo). */
+  confirmPasswordReset(request: PasswordResetConfirmRequest): Observable<void> {
+    return this.http.post<void>(`${environment.apiBaseUrl}/auth/password-reset/confirm`, request);
   }
 }

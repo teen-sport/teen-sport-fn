@@ -5,7 +5,11 @@ import { provideRouter } from '@angular/router';
 import { environment } from '../../../../environments/environment';
 import { group } from '../../../../testing/admin-fixtures';
 import { loginResponse } from '../../../../testing/auth-fixtures';
-import { attendanceReport, enrollmentReport } from '../../../../testing/report-fixtures';
+import {
+  attendanceReport,
+  enrollmentReport,
+  userReport,
+} from '../../../../testing/report-fixtures';
 import { SessionService } from '../../../Core/Auth/session.service';
 import { Role } from '../../../Core/Models/role';
 import { ReportsPage } from './reports-page';
@@ -40,18 +44,21 @@ describe('ReportsPage', () => {
     answer('/reports/attendance', attendanceReport());
     answer('/reports/attendance/recurrent-absences', []);
     answer('/reports/enrollments', enrollmentReport());
+    answer('/reports/users', userReport());
     await fixture.whenStable();
 
     expect(el().querySelector('h1')?.textContent).toContain('Reportes e indicadores');
     expect(el().querySelector('app-attendance-report')).toBeTruthy();
     expect(el().querySelector('app-recurrent-absences')).toBeTruthy();
     expect(el().querySelector('app-enrollment-report')).toBeTruthy();
+    expect(el().querySelector('app-user-report')).toBeTruthy();
+    expect(el().querySelector('.lead')?.textContent).toContain('cuentas de usuario');
     // Los grupos que cargó la pantalla llegan a los filtros de las secciones.
     expect(el().querySelector('#attendance-group')?.textContent).toContain('Sub-17');
     expect(el().querySelector('#absences-group')?.textContent).toContain('Sub-17');
   });
 
-  it('does not show the enrollments, nor ask for them, to the coach', async () => {
+  it('does not show the enrollments or the user accounts, nor ask for them, to the coach', async () => {
     await setup('COACH');
     answer('/groups', [group({ id: 4 })]);
     answer('/reports/attendance', attendanceReport());
@@ -59,7 +66,10 @@ describe('ReportsPage', () => {
     await fixture.whenStable();
 
     expect(el().querySelector('app-enrollment-report')).toBeNull();
+    expect(el().querySelector('app-user-report')).toBeNull();
+    expect(el().querySelector('.lead')?.textContent).not.toContain('cuentas');
     backend.expectNone((req) => req.url === `${API}/reports/enrollments`);
+    backend.expectNone((req) => req.url === `${API}/reports/users`);
   });
 
   it('keeps the reports working when the groups do not load, only without the group filter', async () => {

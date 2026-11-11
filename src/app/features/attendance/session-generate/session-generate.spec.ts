@@ -62,6 +62,13 @@ describe('SessionGenerate', () => {
     expect(el().querySelector('h1')?.textContent).toContain('Generar sesiones');
   });
 
+  it('explains that the guardians receive an e-mail when they are notified', async () => {
+    await setup();
+    const hint = el().querySelector('label.check small')?.textContent ?? '';
+    expect(hint).toContain('Reciben un correo');
+    expect(hint).not.toContain('todavía no envía');
+  });
+
   it('shows the weekly schedules of the chosen group', async () => {
     await setup();
     expect(el().querySelector('.notice')).toBeNull();

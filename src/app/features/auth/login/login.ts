@@ -20,6 +20,7 @@ export class Login {
   protected readonly notice = this.noticeFor(
     this.query.get('reason'),
     this.query.has('registered'),
+    this.query.has('passwordReset'),
   );
 
   protected readonly submitting = signal(false);
@@ -54,7 +55,14 @@ export class Login {
     });
   }
 
-  private noticeFor(reason: string | null, registered: boolean): string | null {
+  private noticeFor(
+    reason: string | null,
+    registered: boolean,
+    passwordReset: boolean,
+  ): string | null {
+    if (passwordReset) {
+      return 'Contraseña actualizada. Inicia sesión con la nueva.';
+    }
     if (registered) {
       return 'Tu cuenta está lista. Inicia sesión para continuar.';
     }

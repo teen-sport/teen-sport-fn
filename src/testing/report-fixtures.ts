@@ -3,6 +3,7 @@ import {
   AttendanceReport,
   EnrollmentReport,
   RecurrentAbsence,
+  UserReport,
 } from '../app/features/reports/report.models';
 
 /** R3: Sofía (deportista 1) con 8 sesiones registradas: 6 presentes y 2 ausentes. */
@@ -74,6 +75,23 @@ export function recurrentAbsence(overrides: Partial<RecurrentAbsence> = {}): Rec
     group: { id: 4, name: 'Sub-15 A' },
     consecutiveAbsences: 3,
     lastAttendance: '2026-10-27',
+    ...overrides,
+  };
+}
+
+/** R5: noviembre de 2026 con 7 cuentas nuevas. */
+export function userReport(overrides: Partial<UserReport> = {}): UserReport {
+  return {
+    period: '2026-11',
+    registeredInPeriod: 7,
+    inactiveAccounts: 3,
+    guardiansWithAthletes: 38,
+    guardianLinkRate: 95,
+    byRole: [
+      { role: 'ADMIN', registeredInPeriod: 0, active: 2, inactive: 0 },
+      { role: 'COACH', registeredInPeriod: 1, active: 5, inactive: 1 },
+      { role: 'GUARDIAN', registeredInPeriod: 6, active: 40, inactive: 2 },
+    ],
     ...overrides,
   };
 }

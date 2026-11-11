@@ -214,6 +214,7 @@ describe('SessionForm', () => {
 
       expect(el().querySelector('h1')?.textContent).toContain('Reprogramar sesión');
       expect(el().querySelector('.hint')?.textContent).toContain('Sub-15 A');
+      expect(el().querySelector('.hint')?.textContent).toContain('se avisa por correo');
       expect(el().querySelector('#groupId')).toBeNull();
       expect(input('date').value).toBe('2026-11-13');
       expect(input('startTime').value).toBe('16:00');

@@ -34,11 +34,22 @@ export interface SessionQuery {
   status?: SessionStatus | null;
 }
 
+/** Contacto de emergencia: el acudiente del deportista (solo viene en la lista de asistencia). */
+export interface GuardianContact {
+  firstNames: string;
+  lastNames: string;
+  /** Puede ser null si el acudiente no tiene teléfono registrado. */
+  phone: string | null;
+}
+
 /** Deportista de la lista de una sesión. `status` es null mientras no se haya marcado. */
 export interface AttendanceRosterEntry {
   athleteId: number;
   firstNames: string;
   lastNames: string;
+  /** Edad en años al día de hoy (no a la fecha de la sesión). */
+  age: number;
+  guardian: GuardianContact;
   status: AttendanceStatus | null;
 }
 

@@ -6,7 +6,7 @@ import { RouterTestingHarness } from '@angular/router/testing';
 import { environment } from '../environments/environment';
 import { attendanceRoster, trainingSession } from '../testing/attendance-fixtures';
 import { loginResponse } from '../testing/auth-fixtures';
-import { attendanceReport, enrollmentReport } from '../testing/report-fixtures';
+import { attendanceReport, enrollmentReport, userReport } from '../testing/report-fixtures';
 import { enrollmentDetail, page } from '../testing/guardian-fixtures';
 import { SessionService } from './Core/Auth/session.service';
 import { Role } from './Core/Models/role';
@@ -71,6 +71,18 @@ describe('routes of the guardian and the administrator', () => {
       const harness = await setup(role);
       await harness.navigateByUrl('/guardian/enrollments');
       expect(TestBed.inject(Router).url).toBe(role === 'COACH' ? '/coach' : '/admin');
+    },
+  );
+
+  it.each([null, 'GUARDIAN'] as const)(
+    'opens the password recovery for everyone, with or without session (%s)',
+    async (role) => {
+      const harness = await setup(role);
+      await harness.navigateByUrl('/forgot-password?token=abc123');
+      await harness.fixture.whenStable();
+      const el = harness.routeNativeElement as HTMLElement;
+      expect(el.querySelector('#newPassword')).toBeTruthy();
+      expect(TestBed.inject(Router).url).toBe('/forgot-password');
     },
   );
 
@@ -229,6 +241,7 @@ describe('routes of the guardian and the administrator', () => {
       backend
         .expectOne((req) => req.url === `${api}/reports/enrollments`)
         .flush(enrollmentReport());
+      backend.expectOne((req) => req.url === `${api}/reports/users`).flush(userReport());
     }
     await harness.fixture.whenStable();
     expect(

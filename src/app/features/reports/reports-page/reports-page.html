@@ -1,13 +1,7 @@
 <header class="page-head">
   <div>
     <h1>Reportes e indicadores</h1>
-    <p class="lead">
-      Revisa la asistencia, las inasistencias seguidas
-      @if (isAdmin()) {
-        y las inscripciones
-      }
-      de tus grupos.
-    </p>
+    <p class="lead">{{ lead() }}</p>
   </div>
 </header>
 
@@ -15,4 +9,5 @@
 <app-recurrent-absences [groups]="groups()" />
 @if (isAdmin()) {
   <app-enrollment-report />
+  <app-user-report />
 }

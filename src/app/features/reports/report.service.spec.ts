@@ -25,6 +25,14 @@ describe('ReportService', () => {
     req.flush({});
   });
 
+  it('asks for the user accounts report of a month with GET /reports/users', () => {
+    service.users('2026-11').subscribe();
+    const req = http.expectOne((r) => r.url.endsWith('/reports/users'));
+    expect(req.request.method).toBe('GET');
+    expect(req.request.params.get('period')).toBe('2026-11');
+    req.flush({});
+  });
+
   it('asks for the attendance report with the filters that were given', () => {
     service
       .attendance({ dateFrom: '2026-11-01', dateTo: '2026-11-10', groupId: 4, disciplineId: 2 })

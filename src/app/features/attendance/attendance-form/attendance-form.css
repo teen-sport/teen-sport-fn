@@ -93,3 +93,12 @@
   font-size: 0.9rem;
   font-weight: 600;
 }
+
+/* Edad y contacto de emergencia: en una línea aparte, debajo del nombre y las marcas. */
+.athlete-info {
+  flex-basis: 100%;
+  order: 1;
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+}

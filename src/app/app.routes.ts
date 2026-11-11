@@ -16,6 +16,13 @@ export const routes: Routes = [
     loadComponent: () => import('./features/auth/register/register').then((m) => m.Register),
   },
   {
+    // Pública y sin guestGuard: el enlace del correo debe abrir esta pantalla aunque haya otra sesión abierta.
+    path: 'forgot-password',
+    title: 'Recuperar contraseña | TeenSport',
+    loadComponent: () =>
+      import('./features/auth/forgot-password/forgot-password').then((m) => m.ForgotPassword),
+  },
+  {
     // Todo lo que sigue exige sesión y se muestra dentro del marco con el menú.
     path: '',
     canActivate: [authGuard],

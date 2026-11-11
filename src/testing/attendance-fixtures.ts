@@ -27,6 +27,8 @@ export function rosterEntry(overrides: Partial<AttendanceRosterEntry> = {}): Att
     athleteId: 1,
     firstNames: 'Sofía',
     lastNames: 'Pérez',
+    age: 14,
+    guardian: { firstNames: 'Marta', lastNames: 'Gómez', phone: '3001234567' },
     status: null,
     ...overrides,
   };

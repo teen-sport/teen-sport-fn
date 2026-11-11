@@ -80,6 +80,32 @@ describe('AttendanceForm', () => {
       expect(el().querySelectorAll('input:checked').length).toBe(0);
     });
 
+    it('shows the age and the emergency contact of the guardian of each athlete', async () => {
+      await setup();
+      await load(
+        attendanceRoster({
+          records: [
+            rosterEntry({ athleteId: 1 }),
+            rosterEntry({
+              athleteId: 2,
+              firstNames: 'Juan',
+              lastNames: 'Quintero',
+              age: 12,
+              guardian: { firstNames: 'Luis', lastNames: 'Quintero', phone: null },
+            }),
+          ],
+        }),
+      );
+      const info = Array.from(el().querySelectorAll('.athlete-info')).map((p) =>
+        p.textContent!.replace(/\s+/g, ' ').trim(),
+      );
+      expect(info).toEqual([
+        '14 años · Acudiente: Marta Gómez · Tel. 3001234567',
+        '12 años · Acudiente: Luis Quintero · sin teléfono registrado',
+      ]);
+      expect(el().querySelector('.athlete-info a')?.getAttribute('href')).toBe('tel:3001234567');
+    });
+
     it('marks everybody present with one button', async () => {
       await setup();
       await load();

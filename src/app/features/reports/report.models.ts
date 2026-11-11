@@ -1,5 +1,6 @@
 import { AthleteRef, IdName } from '../../Core/Models/common';
 import { EnrollmentStatus } from '../../Core/Models/enrollment-status';
+import { Role } from '../../Core/Models/role';
 
 /** R1: indicadores de las inscripciones de un mes. Los porcentajes llegan como 66.7, no como 0.667. */
 export interface EnrollmentReport {
@@ -85,6 +86,29 @@ export interface RecurrentAbsence {
   consecutiveAbsences: number;
   /** Fecha de la última vez que asistió; null si nunca asistió. */
   lastAttendance: string | null;
+}
+
+/** R5: indicadores de las cuentas de usuario. Los porcentajes llegan como 95.0, no como 0.95. */
+export interface UserReport {
+  /** «YYYY-MM» */
+  period: string;
+  /** Cuentas creadas en el mes (de cualquier rol), aunque hoy estén inactivas. */
+  registeredInPeriod: number;
+  /** Cuentas inactivas hoy, de cualquier rol (el estado no guarda historial). */
+  inactiveAccounts: number;
+  /** Acudientes activos que tienen al menos un deportista. */
+  guardiansWithAthletes: number;
+  /** Acudientes activos con deportista sobre acudientes activos, en porcentaje (0 si no hay). */
+  guardianLinkRate: number;
+  /** Siempre trae los tres roles, en este orden: administrador, entrenador y acudiente. */
+  byRole: UserReportRole[];
+}
+
+export interface UserReportRole {
+  role: Role;
+  registeredInPeriod: number;
+  active: number;
+  inactive: number;
 }
 
 /** Meta de RNF-10: al menos este porcentaje de las sesiones debe tener la asistencia registrada. */

@@ -23,6 +23,8 @@
       <p class="hint">
         {{ current.group.name }} · {{ current.discipline.name }}. Ahora está el
         {{ formatWeekdayDate(current.date) }}, de {{ current.startTime }} a {{ current.endTime }}.
+        Si cambias la fecha o la hora, se avisa por correo a los acudientes del grupo; si solo
+        cambias las notas, no se envía nada.
       </p>
       <ng-container [ngTemplateOutlet]="fields" />
     </section>

@@ -310,6 +310,9 @@ describe('SessionList', () => {
       expect(el().querySelector('[role="dialog"]')?.textContent).toContain(
         '¿Cancelar esta sesión?',
       );
+      expect(el().querySelector('[role="dialog"]')?.textContent).toContain(
+        'Se avisará por correo a los acudientes',
+      );
 
       const reason = el().querySelector<HTMLTextAreaElement>('#confirm-reason')!;
       reason.value = ' Cancha en mantenimiento ';

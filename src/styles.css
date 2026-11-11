@@ -592,9 +592,11 @@ app-enrollment-group-change + .card {
 .menu-list {
   position: absolute;
   top: calc(100% + var(--space-1));
-  right: 0;
+  /* En pantalla angosta el botón queda a la izquierda: el menú se abre hacia la derecha para no salirse */
+  left: 0;
   z-index: 10;
-  min-width: 17rem;
+  min-width: min(17rem, calc(100vw - 2rem));
+  max-width: calc(100vw - 2rem);
   margin: 0;
   padding: var(--space-1);
   list-style: none;
@@ -606,6 +608,14 @@ app-enrollment-group-change + .card {
 
 .menu-list[hidden] {
   display: none;
+}
+
+/* En pantalla ancha el botón está a la derecha del encabezado: el menú se alinea con su borde derecho */
+@media (min-width: 42rem) {
+  .menu-list {
+    right: 0;
+    left: auto;
+  }
 }
 
 .menu-list a {

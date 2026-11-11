@@ -9,9 +9,10 @@ import {
   EnrollmentReport,
   RecurrentAbsence,
   RecurrentAbsenceQuery,
+  UserReport,
 } from './report.models';
 
-/** Reportes e indicadores (R1 a R4). Los cálculos los hace el servidor; el front solo los muestra. */
+/** Reportes e indicadores (R1 a R5). Los cálculos los hace el servidor; el front solo los muestra. */
 @Injectable({ providedIn: 'root' })
 export class ReportService {
   private readonly http = inject(HttpClient);
@@ -73,6 +74,13 @@ export class ReportService {
     }
     return this.http.get<RecurrentAbsence[]>(`${this.url}/attendance/recurrent-absences`, {
       params,
+    });
+  }
+
+  /** R5 (administrador): indicadores de las cuentas de usuario; los creados se cuentan en el mes `period`. */
+  users(period: string): Observable<UserReport> {
+    return this.http.get<UserReport>(`${this.url}/users`, {
+      params: new HttpParams().set('period', period),
     });
   }
 }

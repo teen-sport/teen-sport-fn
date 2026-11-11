@@ -1,0 +1,75 @@
+<section class="card" aria-labelledby="user-report-title">
+  <h2 id="user-report-title">Cuentas de usuario</h2>
+
+  <form class="filter-panel" aria-label="Elegir el mes" (submit)="$event.preventDefault(); load()">
+    <div class="control">
+      <label class="control-title" for="user-period">Mes</label>
+      <p class="control-hint" id="user-period-hint">
+        Elige el mes en el que se crearon las cuentas. Las cuentas activas e inactivas son las de
+        hoy.
+      </p>
+      <select
+        id="user-period"
+        class="control-input"
+        aria-describedby="user-period-hint"
+        [formControl]="period"
+      >
+        @for (option of periods; track option.value) {
+          <option [value]="option.value">{{ option.label }}</option>
+        }
+      </select>
+    </div>
+  </form>
+
+  @if (loading()) {
+    <p role="status">Calculando…</p>
+  } @else if (loadError(); as message) {
+    <p class="alert" role="alert">{{ message }}</p>
+    <button type="button" (click)="load()">Reintentar</button>
+  } @else if (report(); as current) {
+    <dl class="summary-grid">
+      <div>
+        <dt>Cuentas creadas en {{ formatPeriod(current.period) }}</dt>
+        <dd>{{ current.registeredInPeriod }}</dd>
+      </div>
+      <div>
+        <dt>Cuentas inactivas hoy</dt>
+        <dd>{{ current.inactiveAccounts }}</dd>
+      </div>
+      <div>
+        <dt>Acudientes con deportista</dt>
+        <dd>{{ current.guardiansWithAthletes }}</dd>
+      </div>
+      <div>
+        <dt>Acudientes con deportista (%)</dt>
+        <dd>{{ formatPercent(current.guardianLinkRate) }}</dd>
+      </div>
+    </dl>
+
+    <div class="table-wrap">
+      <table class="table">
+        <caption class="sr-only">
+          Cuentas por rol
+        </caption>
+        <thead>
+          <tr>
+            <th scope="col">Rol</th>
+            <th scope="col">Creadas en el mes</th>
+            <th scope="col">Activas</th>
+            <th scope="col">Inactivas</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (item of current.byRole; track item.role) {
+            <tr>
+              <th scope="row">{{ roleLabels[item.role] }}</th>
+              <td>{{ item.registeredInPeriod }}</td>
+              <td>{{ item.active }}</td>
+              <td>{{ item.inactive }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</section>

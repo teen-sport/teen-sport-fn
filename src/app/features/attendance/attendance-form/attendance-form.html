@@ -85,6 +85,15 @@
                   @if (isMissing(entry)) {
                     <p class="hint-missing">Sin marcar</p>
                   }
+                  <p class="athlete-info">
+                    {{ entry.age }} años · Acudiente: {{ entry.guardian.firstNames }}
+                    {{ entry.guardian.lastNames }} ·
+                    @if (entry.guardian.phone; as phone) {
+                      Tel. <a [href]="'tel:' + phone">{{ phone }}</a>
+                    } @else {
+                      sin teléfono registrado
+                    }
+                  </p>
                 </fieldset>
               </li>
             }
