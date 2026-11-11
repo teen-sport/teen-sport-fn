@@ -37,6 +37,17 @@ export interface RegisterGuardianRequest {
   acceptedDataPolicy: boolean;
 }
 
+/** Cuerpo de POST /auth/password-reset/request (U13) */
+export interface PasswordResetRequest {
+  email: string;
+}
+
+/** Cuerpo de POST /auth/password-reset/confirm (U14): el token llega en el enlace del correo */
+export interface PasswordResetConfirmRequest {
+  token: string;
+  newPassword: string;
+}
+
 /** Perfil de un usuario (respuesta de U2 y U3) */
 export interface UserProfile {
   id: number;
@@ -50,7 +61,6 @@ export interface UserProfile {
   status: EntityStatus;
   acceptedDataPolicy: boolean;
 }
-
 
 export interface StoredSession {
   accessToken: string;

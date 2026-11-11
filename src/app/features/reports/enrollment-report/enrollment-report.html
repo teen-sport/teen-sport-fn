@@ -1,0 +1,128 @@
+<section class="card" aria-labelledby="enrollment-report-title">
+  <h2 id="enrollment-report-title">Inscripciones del mes</h2>
+
+  <form class="filter-panel" aria-label="Elegir el mes" (submit)="$event.preventDefault(); load()">
+    <div class="control">
+      <label class="control-title" for="enrollment-period">Mes</label>
+      <p class="control-hint" id="enrollment-period-hint">
+        Elige el mes del que quieres ver las inscripciones.
+      </p>
+      <select
+        id="enrollment-period"
+        class="control-input"
+        aria-describedby="enrollment-period-hint"
+        [formControl]="period"
+      >
+        @for (option of periods; track option.value) {
+          <option [value]="option.value">{{ option.label }}</option>
+        }
+      </select>
+    </div>
+  </form>
+
+  @if (loading()) {
+    <p role="status">Calculando…</p>
+  } @else if (loadError(); as message) {
+    <p class="alert" role="alert">{{ message }}</p>
+    <button type="button" (click)="load()">Reintentar</button>
+  } @else if (report(); as current) {
+    @if (current.totalRequests === 0) {
+      <p class="empty-state">
+        No hubo solicitudes de inscripción en {{ formatPeriod(current.period) }}.
+      </p>
+    } @else {
+      <dl class="summary-grid">
+        <div>
+          <dt>Solicitudes</dt>
+          <dd>{{ current.totalRequests }}</dd>
+        </div>
+        <div>
+          <dt>Inscripciones activas</dt>
+          <dd>{{ formatPercent(current.completionRate) }}</dd>
+        </div>
+        <div>
+          <dt>Abandono (canceladas)</dt>
+          <dd>{{ formatPercent(current.abandonmentRate) }}</dd>
+        </div>
+        <div>
+          <dt>Tiempo promedio de confirmación</dt>
+          <dd>{{ formatHours(current.averageConfirmationHours) }}</dd>
+        </div>
+      </dl>
+
+      <div class="row">
+        <div class="table-wrap">
+          <table class="table">
+            <caption class="sr-only">
+              Solicitudes por estado
+            </caption>
+            <thead>
+              <tr>
+                <th scope="col">Estado</th>
+                <th scope="col">Solicitudes</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (item of statuses(); track item.status) {
+                <tr>
+                  <th scope="row">{{ item.label }}</th>
+                  <td>{{ item.count }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <div class="table-wrap">
+          <table class="table">
+            <caption class="sr-only">
+              Pagos de las inscripciones
+            </caption>
+            <thead>
+              <tr>
+                <th scope="col">Pago</th>
+                <th scope="col">Inscripciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th scope="row">{{ paymentLabels.UP_TO_DATE }}</th>
+                <td>{{ current.payments.upToDate ?? 0 }}</td>
+              </tr>
+              <tr>
+                <th scope="row">{{ paymentLabels.OVERDUE }}</th>
+                <td>{{ current.payments.overdue ?? 0 }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      @if (current.byDiscipline.length > 0) {
+        <div class="table-wrap">
+          <table class="table">
+            <caption class="sr-only">
+              Inscripciones por disciplina
+            </caption>
+            <thead>
+              <tr>
+                <th scope="col">Disciplina</th>
+                <th scope="col">Solicitudes</th>
+                <th scope="col">Activas</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (item of current.byDiscipline; track item.disciplineId) {
+                <tr>
+                  <th scope="row">{{ item.name }}</th>
+                  <td>{{ item.requests }}</td>
+                  <td>{{ item.active }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    }
+  }
+</section>

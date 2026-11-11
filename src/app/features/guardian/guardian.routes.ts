@@ -48,4 +48,18 @@ export const GUARDIAN_ROUTES: Routes = [
     title: 'Mis pagos | TeenSport',
     loadComponent: () => import('../payments/my-payments/my-payments').then((m) => m.MyPayments),
   },
+  {
+    path: 'sessions',
+    title: 'Sesiones de mis deportistas | TeenSport',
+    loadComponent: () =>
+      import('../attendance/session-list/session-list').then((m) => m.SessionList),
+  },
+  {
+    path: 'attendance',
+    title: 'Historial de asistencia | TeenSport',
+    loadComponent: () =>
+      import('../attendance/attendance-history/attendance-history').then(
+        (m) => m.AttendanceHistory,
+      ),
+  },
 ];

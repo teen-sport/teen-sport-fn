@@ -20,7 +20,13 @@
           rows="3"
           [formControl]="reason"
           [attr.maxlength]="reasonMaxLength()"
+          [attr.aria-required]="reasonRequired() ? 'true' : null"
+          [attr.aria-invalid]="reasonMissing() ? 'true' : null"
+          [attr.aria-describedby]="reasonMissing() ? 'confirm-reason-error' : null"
         ></textarea>
+        @if (reasonMissing()) {
+          <p class="error" id="confirm-reason-error" role="alert">Escribe el motivo.</p>
+        }
       </div>
     }
 

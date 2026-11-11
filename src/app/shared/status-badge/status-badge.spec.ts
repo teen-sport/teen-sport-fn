@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { EnrollmentStatus, PaymentStatus } from '../../Core/Models/enrollment-status';
 import { EntityStatus } from '../../Core/Models/role';
+import { AttendanceStatus, SessionStatus } from '../../Core/Models/session-status';
 import { StatusBadge } from './status-badge';
 
 @Component({
@@ -9,14 +10,15 @@ import { StatusBadge } from './status-badge';
   template: `<app-status-badge [kind]="kind" [value]="value" />`,
 })
 class Host {
-  kind: 'enrollment' | 'payment' | 'entity' = 'enrollment';
-  value: EnrollmentStatus | PaymentStatus | EntityStatus = 'ACTIVE';
+  kind: 'enrollment' | 'payment' | 'entity' | 'session' | 'attendance' = 'enrollment';
+  value: EnrollmentStatus | PaymentStatus | EntityStatus | SessionStatus | AttendanceStatus =
+    'ACTIVE';
 }
 
 describe('StatusBadge', () => {
   async function render(
-    kind: 'enrollment' | 'payment' | 'entity',
-    value: EnrollmentStatus | PaymentStatus | EntityStatus,
+    kind: 'enrollment' | 'payment' | 'entity' | 'session' | 'attendance',
+    value: EnrollmentStatus | PaymentStatus | EntityStatus | SessionStatus | AttendanceStatus,
   ): Promise<HTMLElement> {
     TestBed.configureTestingModule({ imports: [Host] });
     const fixture = TestBed.createComponent(Host);
@@ -35,6 +37,11 @@ describe('StatusBadge', () => {
     ['payment', 'OVERDUE', 'Pago pendiente', 'badge--warn'],
     ['entity', 'ACTIVE', 'Activo', 'badge--good'],
     ['entity', 'INACTIVE', 'Inactivo', 'badge--muted'],
+    ['session', 'SCHEDULED', 'Programada', 'badge--muted'],
+    ['session', 'COMPLETED', 'Realizada', 'badge--good'],
+    ['session', 'CANCELLED', 'Cancelada', 'badge--muted'],
+    ['attendance', 'PRESENT', 'Presente', 'badge--good'],
+    ['attendance', 'ABSENT', 'Ausente', 'badge--bad'],
   ] as const)('shows %s %s as «%s»', async (kind, value, label, tone) => {
     const badge = await render(kind, value);
     expect(badge.textContent?.trim()).toBe(label);

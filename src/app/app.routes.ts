@@ -1,8 +1,6 @@
 import { Routes } from '@angular/router';
 import { authGuard, guestGuard, roleGuard } from './Core/Auth/auth.guards';
 
-const homePage = () => import('./features/home/home-shell/home-shell').then((m) => m.HomeShell);
-
 export const routes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'login' },
   {
@@ -18,6 +16,13 @@ export const routes: Routes = [
     loadComponent: () => import('./features/auth/register/register').then((m) => m.Register),
   },
   {
+    // Pública y sin guestGuard: el enlace del correo debe abrir esta pantalla aunque haya otra sesión abierta.
+    path: 'forgot-password',
+    title: 'Recuperar contraseña | TeenSport',
+    loadComponent: () =>
+      import('./features/auth/forgot-password/forgot-password').then((m) => m.ForgotPassword),
+  },
+  {
     // Todo lo que sigue exige sesión y se muestra dentro del marco con el menú.
     path: '',
     canActivate: [authGuard],
@@ -30,10 +35,10 @@ export const routes: Routes = [
         loadChildren: () => import('./features/admin/admin.routes').then((m) => m.ADMIN_ROUTES),
       },
       {
+        // Un solo guard protege todas las pantallas del entrenador.
         path: 'coach',
-        title: 'Entrenador | TeenSport',
         canActivate: [roleGuard('COACH')],
-        loadComponent: homePage,
+        loadChildren: () => import('./features/coach/coach.routes').then((m) => m.COACH_ROUTES),
       },
       {
         // Un solo guard protege todas las pantallas del acudiente.

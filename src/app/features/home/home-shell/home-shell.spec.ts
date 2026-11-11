@@ -3,6 +3,7 @@ import { provideRouter } from '@angular/router';
 import { loginResponse } from '../../../../testing/auth-fixtures';
 import { SessionService } from '../../../Core/Auth/session.service';
 import { Role } from '../../../Core/Models/role';
+import { SHORTCUTS } from '../../../layout/nav-items';
 import { HomeShell } from './home-shell';
 
 describe('HomeShell', () => {
@@ -35,12 +36,30 @@ describe('HomeShell', () => {
   });
 
   it('says that the options will appear while a role has no shortcuts yet', async () => {
-    await setup('COACH');
-    expect(el().querySelector('.shortcuts')).toBeNull();
-    expect(el().querySelector('.empty')?.textContent).toContain('a medida que estén disponibles');
+    const coachShortcuts = SHORTCUTS.COACH;
+    SHORTCUTS.COACH = [];
+    try {
+      await setup('COACH');
+      expect(el().querySelector('.shortcuts')).toBeNull();
+      expect(el().querySelector('.empty')?.textContent).toContain('a medida que estén disponibles');
+    } finally {
+      SHORTCUTS.COACH = coachShortcuts;
+    }
   });
 
-  it('shows the four shortcuts of the guardian, each one linking to its screen', async () => {
+  it('shows the shortcuts of the coach, linking to the sessions and the history', async () => {
+    await setup('COACH');
+    expect(el().querySelector('.empty')).toBeNull();
+    const cards = Array.from(el().querySelectorAll<HTMLAnchorElement>('.shortcuts a.shortcut'));
+    expect(cards.map((card) => card.getAttribute('href'))).toEqual([
+      '/coach/sessions',
+      '/coach/attendance',
+      '/coach/reports',
+    ]);
+    expect(cards[0].querySelector('strong')?.textContent).toBe('Sesiones y asistencia');
+  });
+
+  it('shows the shortcuts of the guardian, each one linking to its screen', async () => {
     await setup('GUARDIAN');
     expect(el().querySelector('.empty')).toBeNull();
     const cards = Array.from(el().querySelectorAll<HTMLAnchorElement>('.shortcuts a.shortcut'));
@@ -49,12 +68,16 @@ describe('HomeShell', () => {
       'Grupos disponibles',
       'Mis inscripciones',
       'Mis pagos',
+      'Sesiones',
+      'Historial de asistencia',
     ]);
     expect(cards.map((card) => card.getAttribute('href'))).toEqual([
       '/guardian/athletes',
       '/guardian/groups',
       '/guardian/enrollments',
       '/guardian/payments',
+      '/guardian/sessions',
+      '/guardian/attendance',
     ]);
   });
 
@@ -66,8 +89,12 @@ describe('HomeShell', () => {
       '/admin/disciplines',
       '/admin/coaches',
       '/admin/groups',
+      '/admin/sessions',
+      '/admin/attendance',
+      '/admin/reports',
       '/admin/enrollments',
       '/admin/payments',
+      '/admin/users',
     ]);
   });
 });

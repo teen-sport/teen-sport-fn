@@ -59,6 +59,13 @@ describe('Login', () => {
     expect(el().querySelector('a[href="/register"]')).toBeTruthy();
   });
 
+  it('offers the way to recover a forgotten password', async () => {
+    await setup();
+    expect(el().querySelector('a[href="/forgot-password"]')?.textContent).toContain(
+      '¿Olvidaste tu contraseña?',
+    );
+  });
+
   it('does not call the API with an empty form and says what is missing', async () => {
     await setup();
     await submit();
@@ -124,6 +131,7 @@ describe('Login', () => {
   it.each([
     [{ reason: 'expired' }, 'Tu sesión expiró'],
     [{ registered: '1' }, 'Tu cuenta está lista'],
+    [{ passwordReset: '1' }, 'Contraseña actualizada'],
   ])('explains why the user is here: %j', async (query, text) => {
     await setup(query);
     expect(el().querySelector('[role="status"]')?.textContent).toContain(text);

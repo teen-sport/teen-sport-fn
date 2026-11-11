@@ -1,0 +1,113 @@
+<section class="card" aria-labelledby="absences-title">
+  <h2 id="absences-title">Inasistencias seguidas</h2>
+  <p class="hint">
+    Deportistas que faltaron a varias sesiones seguidas, contando desde la última vez que
+    asistieron.
+  </p>
+
+  <form
+    class="filter-panel"
+    aria-label="Filtrar las inasistencias seguidas"
+    [formGroup]="filters"
+    (submit)="$event.preventDefault(); load()"
+  >
+    <div class="control">
+      <label class="control-title" for="absences-min">Ausencias seguidas</label>
+      <p class="control-hint" id="absences-min-hint">
+        Muestra a quienes faltaron al menos este número de sesiones seguidas.
+      </p>
+      <select
+        id="absences-min"
+        class="control-input"
+        aria-describedby="absences-min-hint"
+        formControlName="minConsecutive"
+      >
+        @for (option of minOptions; track option) {
+          <option [value]="option">{{ option }}</option>
+        }
+      </select>
+    </div>
+    @if (groups().length > 1) {
+      <div class="control">
+        <label class="control-title" for="absences-group">Grupo</label>
+        <p class="control-hint" id="absences-group-hint">Elige un grupo o deja todos.</p>
+        <select
+          id="absences-group"
+          class="control-input"
+          aria-describedby="absences-group-hint"
+          formControlName="groupId"
+        >
+          <option value="">Todos</option>
+          @for (group of groups(); track group.id) {
+            <option [value]="group.id">{{ group.name }}</option>
+          }
+        </select>
+      </div>
+    }
+    <div class="control">
+      <label class="control-title" for="absences-from">Contar desde</label>
+      <p class="control-hint" id="absences-from-hint">
+        Solo cuenta las sesiones desde este día. Déjalo vacío para contarlas todas.
+      </p>
+      <input
+        id="absences-from"
+        type="date"
+        class="control-input"
+        aria-describedby="absences-from-hint"
+        formControlName="dateFrom"
+      />
+    </div>
+    <div class="filter-actions">
+      <button type="submit">Buscar</button>
+    </div>
+  </form>
+
+  @if (loading()) {
+    <p role="status">Buscando…</p>
+  } @else if (loadError(); as message) {
+    <p class="alert" role="alert">{{ message }}</p>
+    <button type="button" (click)="load()">Reintentar</button>
+  } @else if (absences(); as list) {
+    @if (list.length === 0) {
+      <p class="empty-state">
+        Ningún deportista tiene {{ shownMinimum() }} o más inasistencias seguidas.
+      </p>
+    } @else {
+      <div class="table-wrap">
+        <table class="table">
+          <caption class="sr-only">
+            Deportistas con inasistencias seguidas
+          </caption>
+          <thead>
+            <tr>
+              <th scope="col">Deportista</th>
+              <th scope="col">Grupo</th>
+              <th scope="col">Ausencias seguidas</th>
+              <th scope="col">Última asistencia</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (item of list; track item.athlete.id + '-' + item.group.id) {
+              <tr>
+                <th scope="row">
+                  <a [routerLink]="historyRoute()" [queryParams]="{ athleteId: item.athlete.id }">
+                    {{ item.athlete.firstNames }} {{ item.athlete.lastNames }}
+                  </a>
+                </th>
+                <td>{{ item.group.name }}</td>
+                <td>{{ item.consecutiveAbsences }}</td>
+                <td>
+                  @if (item.lastAttendance) {
+                    {{ formatDate(item.lastAttendance) }}
+                  } @else {
+                    Nunca ha asistido
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  }
+</section>

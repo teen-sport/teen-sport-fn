@@ -1,0 +1,13 @@
+<header class="page-head">
+  <div>
+    <h1>Reportes e indicadores</h1>
+    <p class="lead">{{ lead() }}</p>
+  </div>
+</header>
+
+<app-attendance-report [groups]="groups()" />
+<app-recurrent-absences [groups]="groups()" />
+@if (isAdmin()) {
+  <app-enrollment-report />
+  <app-user-report />
+}

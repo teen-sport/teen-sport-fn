@@ -157,8 +157,21 @@ describe('AppShell', () => {
 
     it('keeps the menu in a row on a wide screen when the role has few options', async () => {
       mockScreen(false);
-      await setup('GUARDIAN');
-      expect(header().classList.contains('app-header__inner--compact')).toBe(false);
+      const guardianItems = NAV_ITEMS.GUARDIAN;
+      NAV_ITEMS.GUARDIAN = guardianItems.slice(0, COLLAPSE_MENU_FROM - 1);
+      try {
+        await setup('GUARDIAN');
+        expect(header().classList.contains('app-header__inner--compact')).toBe(false);
+      } finally {
+        NAV_ITEMS.GUARDIAN = guardianItems;
+      }
+    });
+
+    it('collapses the menu of the coach on a wide screen, like the one of the administrator', async () => {
+      mockScreen(false);
+      await setup('COACH');
+      expect(header().classList.contains('app-header__inner--compact')).toBe(true);
+      expect(el().querySelector('.app-menu-toggle')).toBeTruthy();
     });
 
     it('collapses the menu on a narrow screen', async () => {

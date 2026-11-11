@@ -1,0 +1,234 @@
+<header class="page-head">
+  <div>
+    <h1>{{ title() }}</h1>
+    <p class="lead">{{ lead() }}</p>
+  </div>
+  @if (canManage()) {
+    <div class="menu schedule-menu">
+      <button
+        type="button"
+        class="menu-trigger"
+        aria-haspopup="true"
+        aria-controls="schedule-menu-list"
+        [attr.aria-expanded]="menuOpen()"
+        (click)="toggleMenu()"
+      >
+        Programar <span aria-hidden="true">▾</span>
+      </button>
+      <ul id="schedule-menu-list" class="menu-list" [hidden]="!menuOpen()">
+        <li>
+          <a [routerLink]="[base(), 'generate']">
+            Generar sesiones
+            <small>Crea varias a partir de los horarios del grupo.</small>
+          </a>
+        </li>
+        <li>
+          <a [routerLink]="[base(), 'new']">
+            Nueva sesión
+            <small>Una sola sesión, en la fecha y hora que elijas.</small>
+          </a>
+        </li>
+      </ul>
+    </div>
+  }
+</header>
+
+@if (notice(); as message) {
+  <p class="notice" role="status">{{ message }}</p>
+}
+@if (actionError(); as message) {
+  <p class="alert" role="alert">{{ message }}</p>
+}
+
+<section class="week-bar" aria-label="Elegir qué sesiones ver">
+  <div class="control">
+    <p class="control-title" id="week-title">Semana</p>
+    <p class="control-hint" aria-live="polite">
+      Del {{ formatDate(weekStart()) }} al {{ formatDate(weekEnd()) }}. Cambia de semana para ver
+      otras fechas.
+    </p>
+    <div class="segmented control-input" role="group" aria-labelledby="week-title">
+      <button type="button" aria-label="Semana anterior" (click)="previousWeek()">Anterior</button>
+      <button
+        type="button"
+        [class.is-current]="isCurrentWeek()"
+        [attr.aria-current]="isCurrentWeek() ? 'date' : null"
+        (click)="thisWeek()"
+      >
+        Esta semana
+      </button>
+      <button type="button" aria-label="Semana siguiente" (click)="nextWeek()">Siguiente</button>
+    </div>
+  </div>
+  @if (canManage() && groups().length > 1) {
+    <div class="control">
+      <label class="control-title" for="groupFilter">Grupo</label>
+      <p class="control-hint" id="groupHint">
+        Elige un grupo para ver solo sus sesiones o deja todos.
+      </p>
+      <select
+        id="groupFilter"
+        class="control-input"
+        aria-describedby="groupHint"
+        [formControl]="groupFilter"
+      >
+        <option value="">{{ isAdmin() ? 'Todos los grupos' : 'Todos mis grupos' }}</option>
+        @for (group of groups(); track group.id) {
+          <option [value]="group.id">{{ group.name }}</option>
+        }
+      </select>
+    </div>
+  }
+</section>
+
+@if (loading()) {
+  <p role="status">Cargando sesiones…</p>
+} @else if (loadError(); as message) {
+  <p class="alert" role="alert">{{ message }}</p>
+  <button type="button" (click)="load()">Reintentar</button>
+} @else if (sessions(); as list) {
+  @if (list.length === 0) {
+    <p class="empty-state">{{ emptyText() }}</p>
+  } @else {
+    @if (pendingCount() > 0) {
+      <p class="notice" role="status">
+        @if (pendingCount() === 1) {
+          {{ isCoach() ? 'Tienes' : 'Hay' }} 1 sesión con la asistencia pendiente.
+        } @else {
+          {{ isCoach() ? 'Tienes' : 'Hay' }} {{ pendingCount() }} sesiones con la asistencia
+          pendiente.
+        }
+      </p>
+    }
+
+    <div class="card table-card">
+      <div class="table-wrap">
+        <table class="table">
+          <caption class="sr-only">
+            Sesiones de entrenamiento de la semana
+          </caption>
+          <thead>
+            <tr>
+              <th scope="col">Día</th>
+              <th scope="col">Horario</th>
+              <th scope="col">Grupo</th>
+              @if (isAdmin()) {
+                <th scope="col">Entrenador</th>
+              }
+              @if (isGuardian()) {
+                <th scope="col">Deportistas</th>
+              }
+              <th scope="col">Estado</th>
+              @if (canManage()) {
+                <th scope="col">Asistencia</th>
+                <th scope="col"><span class="sr-only">Acciones</span></th>
+              }
+            </tr>
+          </thead>
+          <tbody>
+            @for (session of list; track session.id) {
+              <tr>
+                <th scope="row">{{ formatWeekdayDate(session.date) }}</th>
+                <td class="nowrap">{{ session.startTime }} – {{ session.endTime }}</td>
+                <td>
+                  {{ session.group.name }}
+                  <small class="plain">{{ session.discipline.name }}</small>
+                  @if (session.notes) {
+                    <small class="plain">
+                      {{ session.status === 'CANCELLED' ? 'Motivo: ' : 'Notas: '
+                      }}{{ session.notes }}
+                    </small>
+                  }
+                </td>
+                @if (isAdmin()) {
+                  <td>{{ session.coach.fullName }}</td>
+                }
+                @if (isGuardian()) {
+                  <td>{{ athleteNames(session) }}</td>
+                }
+                <td><app-status-badge kind="session" [value]="session.status" /></td>
+                @if (canManage()) {
+                  <td>
+                    @if (session.attendanceRecorded) {
+                      Registrada
+                    } @else if (isPending(session)) {
+                      <strong>Pendiente</strong>
+                    } @else {
+                      —
+                    }
+                  </td>
+                  <td>
+                    <div class="row-actions">
+                      @if (canRecord(session)) {
+                        <a
+                          class="btn btn-small"
+                          [class.btn-secondary]="session.attendanceRecorded"
+                          [routerLink]="['/coach/sessions', session.id, 'attendance']"
+                        >
+                          {{
+                            session.attendanceRecorded ? 'Revisar asistencia' : 'Tomar asistencia'
+                          }}
+                          <span class="sr-only">
+                            de {{ session.group.name }}, {{ formatWeekdayDate(session.date) }}
+                          </span>
+                        </a>
+                      }
+                      @if (canChange(session)) {
+                        <a
+                          class="btn btn-small btn-secondary"
+                          [routerLink]="[base(), session.id, 'edit']"
+                        >
+                          Reprogramar
+                          <span class="sr-only">
+                            {{ session.group.name }}, {{ formatWeekdayDate(session.date) }}
+                          </span>
+                        </a>
+                        <button
+                          type="button"
+                          class="btn-small btn-secondary"
+                          (click)="askCancel(session)"
+                        >
+                          Cancelar sesión
+                          <span class="sr-only">
+                            {{ session.group.name }}, {{ formatWeekdayDate(session.date) }}
+                          </span>
+                        </button>
+                      }
+                      @if (session.status === 'CANCELLED') {
+                        <small class="plain">Cancelada</small>
+                      }
+                    </div>
+                  </td>
+                }
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  }
+}
+
+@if (cancelling(); as session) {
+  <app-confirm-dialog
+    title="¿Cancelar esta sesión?"
+    [message]="
+      session.group.name +
+      ', ' +
+      formatWeekdayDate(session.date) +
+      ', ' +
+      session.startTime +
+      ' a ' +
+      session.endTime +
+      '. Se avisará por correo a los acudientes del grupo. No se puede deshacer.'
+    "
+    confirmLabel="Sí, cancelar sesión"
+    cancelLabel="Volver"
+    [danger]="true"
+    [busy]="busy()"
+    reasonLabel="Motivo de la cancelación"
+    [reasonRequired]="true"
+    (confirmed)="confirmCancel($event)"
+    (dismissed)="closeCancel()"
+  />
+}

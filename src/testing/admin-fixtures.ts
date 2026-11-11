@@ -1,5 +1,6 @@
 import { CoachOption, CoachUser } from '../app/features/coaches/coach.models';
 import { Group } from '../app/features/groups/group.models';
+import { AppUser } from '../app/features/users/user.models';
 
 /** Entrenador tal como lo devuelve GET /users. */
 export function coachUser(overrides: Partial<CoachUser> = {}): CoachUser {
@@ -44,6 +45,41 @@ export function group(overrides: Partial<Group> = {}): Group {
       { id: 1, dayOfWeek: 'MONDAY', startTime: '16:00', endTime: '17:30' },
       { id: 2, dayOfWeek: 'WEDNESDAY', startTime: '16:00', endTime: '17:30' },
     ],
+    ...overrides,
+  };
+}
+
+/** Administrador tal como lo devuelve GET /users. */
+export function adminUser(overrides: Partial<AppUser> = {}): AppUser {
+  return {
+    id: 11,
+    idType: 'CC',
+    idNumber: '1000000002',
+    firstNames: 'Laura',
+    lastNames: 'Gómez',
+    email: 'laura@correo.com',
+    phone: '3009876543',
+    role: 'ADMIN',
+    status: 'ACTIVE',
+    acceptedDataPolicy: false,
+    ...overrides,
+  };
+}
+
+/** Acudiente tal como lo devuelve GET /users. */
+export function guardianUser(overrides: Partial<AppUser> = {}): AppUser {
+  return {
+    id: 21,
+    idType: 'CC',
+    idNumber: '1000000003',
+    firstNames: 'Marta',
+    lastNames: 'Pérez',
+    email: 'marta@correo.com',
+    phone: '3011112222',
+    role: 'GUARDIAN',
+    status: 'ACTIVE',
+    acceptedDataPolicy: true,
+    guardian: { id: 4, homeAddress: 'Calle 1 # 2-3' },
     ...overrides,
   };
 }
