@@ -1,14 +1,26 @@
-<h1>Historial de asistencia</h1>
+<header class="page-head">
+  <div>
+    <h1>Historial de asistencia</h1>
+    <p class="lead">{{ lead() }}</p>
+  </div>
+</header>
 
 <form
-  class="toolbar toolbar-dense"
+  class="filter-panel"
+  aria-label="Filtrar el historial"
   [formGroup]="filters"
   (submit)="$event.preventDefault(); apply()"
 >
   @if (!isGuardian() && groups().length > 1) {
-    <div class="field">
-      <label for="groupId">Grupo</label>
-      <select id="groupId" formControlName="groupId">
+    <div class="control">
+      <label class="control-title" for="groupId">Grupo</label>
+      <p class="control-hint" id="groupHint">Elige un grupo para ver solo su asistencia.</p>
+      <select
+        id="groupId"
+        class="control-input"
+        aria-describedby="groupHint"
+        formControlName="groupId"
+      >
         <option value="">Todos</option>
         @for (group of groups(); track group.id) {
           <option [value]="group.id">{{ group.name }}</option>
@@ -17,9 +29,15 @@
     </div>
   }
   @if (isGuardian() && athletes().length > 1) {
-    <div class="field">
-      <label for="athleteId">Deportista</label>
-      <select id="athleteId" formControlName="athleteId">
+    <div class="control">
+      <label class="control-title" for="athleteId">Deportista</label>
+      <p class="control-hint" id="athleteHint">Elige a uno de tus deportistas o deja todos.</p>
+      <select
+        id="athleteId"
+        class="control-input"
+        aria-describedby="athleteHint"
+        formControlName="athleteId"
+      >
         <option value="">Todos</option>
         @for (athlete of athletes(); track athlete.id) {
           <option [value]="athlete.id">{{ athlete.firstNames }} {{ athlete.lastNames }}</option>
@@ -27,38 +45,52 @@
       </select>
     </div>
   }
-  <div class="field">
-    <label for="status">Asistencia</label>
-    <select id="status" formControlName="status">
+  <div class="control">
+    <label class="control-title" for="status">Asistencia</label>
+    <p class="control-hint" id="statusHint">Muestra solo los presentes o solo los ausentes.</p>
+    <select
+      id="status"
+      class="control-input"
+      aria-describedby="statusHint"
+      formControlName="status"
+    >
       <option value="">Todas</option>
       <option value="PRESENT">Presente</option>
       <option value="ABSENT">Ausente</option>
     </select>
   </div>
-  <div class="field">
-    <label for="from">Desde</label>
-    <input
-      id="from"
-      type="date"
-      formControlName="from"
-      [attr.aria-invalid]="rangeError() ? 'true' : null"
-      [attr.aria-describedby]="rangeError() ? 'range-error' : null"
-    />
+  <fieldset class="control">
+    <legend class="control-title">Fechas</legend>
+    <p class="control-hint">Elige desde y hasta qué día quieres ver. Puedes dejar una vacía.</p>
+    <div class="date-pair control-input">
+      <div class="field">
+        <label for="from">Desde</label>
+        <input
+          id="from"
+          type="date"
+          formControlName="from"
+          [attr.aria-invalid]="rangeError() ? 'true' : null"
+          [attr.aria-describedby]="rangeError() ? 'range-error' : null"
+        />
+      </div>
+      <div class="field">
+        <label for="to">Hasta</label>
+        <input
+          id="to"
+          type="date"
+          formControlName="to"
+          [attr.aria-invalid]="rangeError() ? 'true' : null"
+          [attr.aria-describedby]="rangeError() ? 'range-error' : null"
+        />
+      </div>
+    </div>
+  </fieldset>
+  <div class="filter-actions">
+    <button type="submit">Filtrar</button>
+    @if (filtering) {
+      <button type="button" class="btn-secondary" (click)="clearFilters()">Limpiar</button>
+    }
   </div>
-  <div class="field">
-    <label for="to">Hasta</label>
-    <input
-      id="to"
-      type="date"
-      formControlName="to"
-      [attr.aria-invalid]="rangeError() ? 'true' : null"
-      [attr.aria-describedby]="rangeError() ? 'range-error' : null"
-    />
-  </div>
-  <button type="submit">Filtrar</button>
-  @if (filtering) {
-    <button type="button" class="btn-secondary" (click)="clearFilters()">Limpiar</button>
-  }
 </form>
 @if (rangeError()) {
   <p class="alert" role="alert" id="range-error">

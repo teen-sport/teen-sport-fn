@@ -60,6 +60,18 @@ describe('RecurrentAbsences', () => {
     expect(el().querySelector('.empty-state')?.textContent).toContain('3 o más inasistencias');
   });
 
+  it('titles and explains each filter', async () => {
+    await setup();
+    request().flush([]);
+    await fixture.whenStable();
+
+    const titles = Array.from(el().querySelectorAll('.filter-panel .control-title')).map((node) =>
+      node.textContent?.trim(),
+    );
+    expect(titles).toEqual(['Ausencias seguidas', 'Grupo', 'Contar desde']);
+    expect(el().querySelectorAll('.filter-panel .control-hint').length).toBe(3);
+  });
+
   it('lists each athlete with a link to their history, their group and their last attendance', async () => {
     await setup('COACH');
     request().flush([

@@ -86,6 +86,16 @@ describe('UserList', () => {
     expect(rows[1].textContent).toContain('Desactivar');
   });
 
+  it('keeps the row buttons apart in their own container', async () => {
+    await setup();
+    list().flush(page([adminUser({ id: 7 }), adminUser({ id: 11 })]));
+    await fixture.whenStable();
+
+    const actions = el().querySelectorAll('tbody tr')[1].querySelector('.row-actions')!;
+    expect(actions.textContent).toContain('Editar');
+    expect(actions.textContent).toContain('Desactivar');
+  });
+
   it('invites to create an administrator and shows the empty message', async () => {
     await setup();
     list().flush(page([]));

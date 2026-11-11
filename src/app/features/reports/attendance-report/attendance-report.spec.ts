@@ -61,6 +61,18 @@ describe('AttendanceReport', () => {
     expect(el().querySelector('#attendance-report-title')?.textContent).toContain('cobertura');
   });
 
+  it('titles and explains each filter', async () => {
+    await setup([group({ id: 4 }), group({ id: 9, name: 'Sub-17' })]);
+    request().flush(attendanceReport());
+    await fixture.whenStable();
+
+    const titles = Array.from(el().querySelectorAll('.filter-panel .control-title')).map((node) =>
+      node.textContent?.trim(),
+    );
+    expect(titles).toEqual(['Grupo', 'Fechas']);
+    expect(el().querySelectorAll('.filter-panel .control-hint').length).toBe(2);
+  });
+
   it('shows the figures, with the percentages written in Spanish', async () => {
     await setup();
     request().flush(attendanceReport());

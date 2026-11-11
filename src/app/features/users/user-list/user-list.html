@@ -81,30 +81,32 @@
                   <small class="plain">{{ user.phone }}</small>
                 </td>
                 <td><app-status-badge kind="entity" [value]="user.status" /></td>
-                <td class="nowrap">
-                  @if (editLink(user); as link) {
-                    <a class="btn btn-secondary btn-small" [routerLink]="link">Editar</a>
-                  }
-                  @if (isOwn(user)) {
-                    <small class="plain">Tu cuenta</small>
-                  } @else if (user.status === 'ACTIVE') {
-                    <button
-                      type="button"
-                      class="btn-secondary btn-small"
-                      (click)="askToDeactivate(user)"
-                    >
-                      Desactivar
-                    </button>
-                  } @else {
-                    <button
-                      type="button"
-                      class="btn-secondary btn-small"
-                      [disabled]="busy()"
-                      (click)="activate(user)"
-                    >
-                      Activar
-                    </button>
-                  }
+                <td>
+                  <div class="row-actions">
+                    @if (editLink(user); as link) {
+                      <a class="btn btn-secondary btn-small" [routerLink]="link">Editar</a>
+                    }
+                    @if (isOwn(user)) {
+                      <small class="plain">Tu cuenta</small>
+                    } @else if (user.status === 'ACTIVE') {
+                      <button
+                        type="button"
+                        class="btn-secondary btn-small"
+                        (click)="askToDeactivate(user)"
+                      >
+                        Desactivar
+                      </button>
+                    } @else {
+                      <button
+                        type="button"
+                        class="btn-secondary btn-small"
+                        [disabled]="busy()"
+                        (click)="activate(user)"
+                      >
+                        Activar
+                      </button>
+                    }
+                  </div>
                 </td>
               </tr>
             }

@@ -628,7 +628,8 @@ app-enrollment-group-change + .card {
 
 /* Panel con los controles de una lista: cada uno con su título, una frase que explica para qué sirve y
    el control abajo, todos alineados */
-.week-bar {
+.week-bar,
+.filter-panel {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
   gap: var(--space-3) var(--space-4);
@@ -696,4 +697,47 @@ select.control-input {
 
 .page-head .lead {
   margin: var(--space-1) 0 0;
+}
+
+/* Panel de filtros con formulario: los bloques se alinean y los botones van abajo */
+fieldset.control {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+fieldset.control .control-title {
+  padding: 0;
+}
+
+.date-pair {
+  display: flex;
+  gap: var(--space-2);
+  width: 100%;
+}
+
+.date-pair .field {
+  flex: 1 1 0;
+  min-width: 0;
+  margin: 0;
+}
+
+.filter-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+/* Panel de filtros dentro de una tarjeta: sin marco propio para no poner un cuadro dentro de otro */
+.card .filter-panel {
+  margin-bottom: var(--space-3);
+  padding: 0;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+}
+
+.filter-panel .control-input {
+  width: 100%;
 }

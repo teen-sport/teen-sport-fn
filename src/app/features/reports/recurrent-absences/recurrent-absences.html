@@ -6,22 +6,37 @@
   </p>
 
   <form
-    class="toolbar toolbar-dense"
+    class="filter-panel"
+    aria-label="Filtrar las inasistencias seguidas"
     [formGroup]="filters"
     (submit)="$event.preventDefault(); load()"
   >
-    <div class="field">
-      <label for="absences-min">Ausencias seguidas, desde</label>
-      <select id="absences-min" formControlName="minConsecutive">
+    <div class="control">
+      <label class="control-title" for="absences-min">Ausencias seguidas</label>
+      <p class="control-hint" id="absences-min-hint">
+        Muestra a quienes faltaron al menos este número de sesiones seguidas.
+      </p>
+      <select
+        id="absences-min"
+        class="control-input"
+        aria-describedby="absences-min-hint"
+        formControlName="minConsecutive"
+      >
         @for (option of minOptions; track option) {
           <option [value]="option">{{ option }}</option>
         }
       </select>
     </div>
     @if (groups().length > 1) {
-      <div class="field">
-        <label for="absences-group">Grupo</label>
-        <select id="absences-group" formControlName="groupId">
+      <div class="control">
+        <label class="control-title" for="absences-group">Grupo</label>
+        <p class="control-hint" id="absences-group-hint">Elige un grupo o deja todos.</p>
+        <select
+          id="absences-group"
+          class="control-input"
+          aria-describedby="absences-group-hint"
+          formControlName="groupId"
+        >
           <option value="">Todos</option>
           @for (group of groups(); track group.id) {
             <option [value]="group.id">{{ group.name }}</option>
@@ -29,11 +44,22 @@
         </select>
       </div>
     }
-    <div class="field">
-      <label for="absences-from">Contar desde</label>
-      <input id="absences-from" type="date" formControlName="dateFrom" />
+    <div class="control">
+      <label class="control-title" for="absences-from">Contar desde</label>
+      <p class="control-hint" id="absences-from-hint">
+        Solo cuenta las sesiones desde este día. Déjalo vacío para contarlas todas.
+      </p>
+      <input
+        id="absences-from"
+        type="date"
+        class="control-input"
+        aria-describedby="absences-from-hint"
+        formControlName="dateFrom"
+      />
     </div>
-    <button type="submit">Buscar</button>
+    <div class="filter-actions">
+      <button type="submit">Buscar</button>
+    </div>
   </form>
 
   @if (loading()) {

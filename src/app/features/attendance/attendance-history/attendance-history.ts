@@ -48,6 +48,12 @@ export class AttendanceHistory {
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly isGuardian = computed(() => this.auth.role() === 'GUARDIAN');
+  /** Frase corta bajo el título que dice para qué sirve la pantalla según el rol. */
+  protected readonly lead = computed(() =>
+    this.isGuardian()
+      ? 'Consulta si tus deportistas asistieron a sus sesiones.'
+      : 'Revisa quién asistió a cada sesión. Filtra por grupo, asistencia o fechas.',
+  );
   /** Ruta de esta pantalla para el rol, para los enlaces que vuelven a ella. */
   protected readonly base = computed(() => attendanceHistoryRoute(this.auth.role()));
   protected readonly formatDate = formatDate;

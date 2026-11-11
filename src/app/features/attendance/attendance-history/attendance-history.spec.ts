@@ -91,6 +91,20 @@ describe('AttendanceHistory', () => {
     expect(el().querySelector('#summary-title')).toBeNull();
   });
 
+  it('explains each filter with a title and a short help text', async () => {
+    await setup('COACH', {}, { groups: [group({ id: 4 }), group({ id: 9, name: 'Sub-17' })] });
+    records().flush(page([]));
+    await fixture.whenStable();
+
+    expect(el().querySelector('.lead')?.textContent).toContain('Revisa quién asistió');
+    const titles = Array.from(el().querySelectorAll('.filter-panel .control-title')).map((node) =>
+      node.textContent?.trim(),
+    );
+    expect(titles).toEqual(['Grupo', 'Asistencia', 'Fechas']);
+    expect(el().querySelectorAll('.filter-panel .control-hint').length).toBe(3);
+    expect(el().querySelector('#groupId')?.getAttribute('aria-describedby')).toBe('groupHint');
+  });
+
   it('shows each mark with its date, group, athlete and a badge', async () => {
     await setup();
     records().flush(

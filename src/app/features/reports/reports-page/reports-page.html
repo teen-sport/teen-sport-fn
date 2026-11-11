@@ -1,4 +1,15 @@
-<h1>Reportes e indicadores</h1>
+<header class="page-head">
+  <div>
+    <h1>Reportes e indicadores</h1>
+    <p class="lead">
+      Revisa la asistencia, las inasistencias seguidas
+      @if (isAdmin()) {
+        y las inscripciones
+      }
+      de tus grupos.
+    </p>
+  </div>
+</header>
 
 <app-attendance-report [groups]="groups()" />
 <app-recurrent-absences [groups]="groups()" />

@@ -6,14 +6,21 @@
   </p>
 
   <form
-    class="toolbar toolbar-dense"
+    class="filter-panel"
+    aria-label="Filtrar el reporte de asistencia"
     [formGroup]="filters"
     (submit)="$event.preventDefault(); apply()"
   >
     @if (groups().length > 1) {
-      <div class="field">
-        <label for="attendance-group">Grupo</label>
-        <select id="attendance-group" formControlName="groupId">
+      <div class="control">
+        <label class="control-title" for="attendance-group">Grupo</label>
+        <p class="control-hint" id="attendance-group-hint">Elige un grupo o deja todos.</p>
+        <select
+          id="attendance-group"
+          class="control-input"
+          aria-describedby="attendance-group-hint"
+          formControlName="groupId"
+        >
           <option value="">Todos</option>
           @for (group of groups(); track group.id) {
             <option [value]="group.id">{{ group.name }}</option>
@@ -21,30 +28,38 @@
         </select>
       </div>
     }
-    <div class="field">
-      <label for="attendance-from">Desde</label>
-      <input
-        id="attendance-from"
-        type="date"
-        formControlName="dateFrom"
-        [attr.aria-invalid]="rangeError() ? 'true' : null"
-        [attr.aria-describedby]="rangeError() ? 'attendance-range-error' : null"
-      />
+    <fieldset class="control">
+      <legend class="control-title">Fechas</legend>
+      <p class="control-hint">Elige el periodo que quieres calcular.</p>
+      <div class="date-pair control-input">
+        <div class="field">
+          <label for="attendance-from">Desde</label>
+          <input
+            id="attendance-from"
+            type="date"
+            formControlName="dateFrom"
+            [attr.aria-invalid]="rangeError() ? 'true' : null"
+            [attr.aria-describedby]="rangeError() ? 'attendance-range-error' : null"
+          />
+        </div>
+        <div class="field">
+          <label for="attendance-to">Hasta</label>
+          <input
+            id="attendance-to"
+            type="date"
+            formControlName="dateTo"
+            [attr.aria-invalid]="rangeError() ? 'true' : null"
+            [attr.aria-describedby]="rangeError() ? 'attendance-range-error' : null"
+          />
+        </div>
+      </div>
+    </fieldset>
+    <div class="filter-actions">
+      <button type="submit">Calcular</button>
+      @if (filtering) {
+        <button type="button" class="btn-secondary" (click)="clear()">Limpiar</button>
+      }
     </div>
-    <div class="field">
-      <label for="attendance-to">Hasta</label>
-      <input
-        id="attendance-to"
-        type="date"
-        formControlName="dateTo"
-        [attr.aria-invalid]="rangeError() ? 'true' : null"
-        [attr.aria-describedby]="rangeError() ? 'attendance-range-error' : null"
-      />
-    </div>
-    <button type="submit">Calcular</button>
-    @if (filtering) {
-      <button type="button" class="btn-secondary" (click)="clear()">Limpiar</button>
-    }
   </form>
   @if (rangeError()) {
     <p class="alert" role="alert" id="attendance-range-error">

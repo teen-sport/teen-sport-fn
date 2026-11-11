@@ -1,10 +1,18 @@
 <section class="card" aria-labelledby="enrollment-report-title">
   <h2 id="enrollment-report-title">Inscripciones del mes</h2>
 
-  <form class="toolbar" (submit)="$event.preventDefault(); load()">
-    <div class="field">
-      <label for="enrollment-period">Mes</label>
-      <select id="enrollment-period" [formControl]="period">
+  <form class="filter-panel" aria-label="Elegir el mes" (submit)="$event.preventDefault(); load()">
+    <div class="control">
+      <label class="control-title" for="enrollment-period">Mes</label>
+      <p class="control-hint" id="enrollment-period-hint">
+        Elige el mes del que quieres ver las inscripciones.
+      </p>
+      <select
+        id="enrollment-period"
+        class="control-input"
+        aria-describedby="enrollment-period-hint"
+        [formControl]="period"
+      >
         @for (option of periods; track option.value) {
           <option [value]="option.value">{{ option.label }}</option>
         }
